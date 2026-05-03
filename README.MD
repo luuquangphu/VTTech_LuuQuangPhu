@@ -8,8 +8,9 @@
   
 - Cách cài đặt  
     + Câp nhật ServerName của connection string trong appsetting.json  
+    ```
     "ConnectionStrings": {  
-        "DefaultConnection": "Server=[DBName];Database=DemoCustomerNK_CN;Integrated Security=True;TrustServerCertificate=True;"  
+        "DefaultConnection": "Server=[ServerName];Database=DemoCustomerNK_CN;Integrated Security=True;TrustServerCertificate=True;"  
     },  
-  
+    ```
     + Chạy file sp_Customer.sql để tạo Store Procedure
