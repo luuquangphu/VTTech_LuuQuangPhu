@@ -37,7 +37,7 @@ namespace CRUDCustomer.Pages.Customer
                 {
                     string json = DataJson.Datatable(dt);
 
-                    Console.WriteLine("=== Load List ===\n" + dt);
+                    Console.WriteLine("=== Load List ===\n" + json);
                     return Content(json);
                 }
                 return Content("[]");
