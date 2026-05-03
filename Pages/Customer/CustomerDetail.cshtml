@@ -1,0 +1,101 @@
+@page
+@Html.AntiForgeryToken()
+@model CRUDCustomer.Pages.Customer.CustomerDetailModel
+<div class="container mt-4 text-center">
+    <div class="card border-2 p-3 d-inline-block text-start">
+        <div class="fw-bold mb-3 text-center" style="font-size: 24px">Tạo khách hàng</div>
+        <form class="mx-2">
+            <div class="d-flex align-items-center mb-3">
+                <label class="form-label mb-0 fw-bold" style="width: 80px;">CusID: </label>
+                <div class="d-flex flex-column">
+                    <input id="inpCustCode" class="form-control" type="text" style="width: 600px;" />
+                    <span id="errorCustCode" class="text-danger mt-1" style="font-size: 15px;"></span>
+                </div>
+            </div>
+            <div class="d-flex align-items-center mb-3">
+                <label class="form-label mb-0 fw-bold" style="width: 80px;">Name: </label>
+                <input id="inpName" class="form-control" type="text" style="width: 600px;" />
+            </div>
+
+            <div class="d-flex align-items-center mb-3">
+                <label class="form-label mb-0 fw-bold" style="width: 80px;">SDT: </label>
+                <input id="inpPhone1" class="form-control" type="text" style="width: 600px;" />
+            </div>
+
+            <div class="d-flex align-items-center mb-3">
+                <label class="form-label mb-0 fw-bold" style="width: 80px;">Note: </label>
+                <input id="inpNote" class="form-control" type="text" style="width: 600px;" />
+            </div>
+            <div class="text-end mt-4">
+                <button type="button" class="btn btn-success px-4" onclick="CreateCustomer()">Tạo</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function request(url, data, async, error, success, before, complete) {
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: data,
+                async: async,
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("RequestVerificationToken",
+                        $('input:hidden[name="__RequestVerificationToken"]').val());
+                    if (before) before();
+                },
+                success: function (response) {
+                    if (success) success(response);
+                },
+                error: function (err) {
+                    if (error) error(err);
+                    else console.error("Ajax Error:", err);
+                },
+                complete: function () {
+                    if (complete) complete();
+                }
+            });
+        }
+
+        //validation and create customer
+        function CreateCustomer() {
+            let CustCode = $("#inpCustCode").val().trim();
+            let Name = $("#inpName").val().trim();
+            let Phone1 = $("#inpPhone1").val().trim();
+            let Note = $("#inpNote").val().trim();
+
+            if (CustCode == "") {
+                $("#errorCustCode").text("Không được để trống mã khách hàng");
+                return;
+            } else {
+                $("#errorCustCode").text("");
+            }
+
+            request
+            (
+                    url = "/Customer/CustomerDetail/?handler=InsertData"
+                    , data = 
+                    { 
+                        "CustCode": CustCode
+                        , "Name": Name
+                        , "Phone1": Phone1
+                        , "Note": Note 
+                    }
+                    , async = true
+                    , error = null
+                    , success = function (response) {
+                        if (response !== "0") {
+                            alert("Tạo khách hàng thành công!");
+                        } else {
+                            alert("Mã khách hàng có thể đã tồn tại hoặc có lỗi hệ thống!");
+                        }
+                    }
+                    , before = null
+                    , complete = null
+            )
+        };
+
+    </script>
+}

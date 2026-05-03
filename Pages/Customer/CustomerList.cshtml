@@ -1,0 +1,245 @@
+@page
+@model CRUDCustomer.Pages.Customer.CustomerListModel
+@{
+    ViewData["Title"] = "Customer List";
+}
+<a asp-page="/Customer/CustomerDetail" class="btn btn-primary">
+    Thêm khách hàng mới
+</a>
+<div>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>STT</th>
+                <th>CusID</th>
+                <th>Name</th>
+                <th>STD</th>
+                <th>Ghi chú</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody id="lstCustomer"></tbody>
+    </table>
+    <div id="waitingDiv" class="waitingdiv text-center" style="display: none">
+        <div class="spinner-border text-primary" role="status"></div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal">
+    <div class="modal-dialog bg-white">
+        <div class="modal-content">
+            <div class="modal-header fw-bold">
+                Thông tin khách hàng
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="this.blur()"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mt-3 mb-3">
+                    <label class="col-sm-2 form-label">CusID:</label>
+                    <div class="col-sm-9" >
+                        <input id="inpCustCode" readonly class="form-control" type="text" />
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label class="col-sm-2 form-label">Name:</label>
+                    <div class="col-sm-9">
+                        <input id="inpName" class="form-control" type="text" />
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label class="col-sm-2 form-label">SDT:</label>
+                    <div class="col-sm-9">
+                        <input id="inpPhone" class="form-control" type="text" />
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <label class="col-sm-2 form-label">Ghi chú:</label>
+                    <div class="col-sm-9">
+                        <input id="inpNote" class="form-control" type="text" />
+                    </div>
+                </div>
+                <div>
+                    <button type="button" class="btn btn-primary" onclick="UpdateCustomer()">Cập nhật</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.AntiForgeryToken()
+
+@section Scripts{
+    <script>
+        let limit = 10;
+
+        $(document).ready(function () {
+            LoadLstCustomer();
+        });
+
+        function request(url, data, async, error, success, before, complete) {
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: data,
+                async: async,
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("RequestVerificationToken",
+                        $('input:hidden[name="__RequestVerificationToken"]').val());
+                    if (before) before();
+                },
+                success: function (response) {
+                    if (success) success(response);
+                },
+                error: function (err) {
+                    if (error) error(err);
+                    else console.error("Ajax Error:", err);
+                },
+                complete: function () {
+                    if (complete) complete();
+                }
+            });
+        }
+
+        function LoadLstCustomer() {
+            request(
+                url = "/Customer/CustomerList/?handler=LoadDataList"
+                , data = { "CustCode": "", "Limit": limit }
+                , async = true
+                , error = null
+                , success = function (result) {
+                    if (result != "[]") {
+                        let data = JSON.parse(result);
+                        let tbody = $('#lstCustomer');
+
+                        
+                        //Clear old data
+                        tbody.empty();
+
+                        let htmlRowsData = '';
+                        for (let i = 0; i < data.length; i++) {
+                            let item = data[i];
+
+                            htmlRowsData +=
+                                `
+                                    <tr class="customer-row" data-cust-code="${item.Cust_Code}">
+                                        <td>${i + 1}</td>
+                                        <td>
+                                            ${item.Cust_Code}
+                                        </td>
+                                        <td>
+                                            ${item.Name || ""}
+                                        </td>
+                                        <td>
+                                            ${item.Phone1 || ""}
+                                        </td>
+                                        <td>
+                                            ${item.Note || "Không có"}
+                                        </td>
+                                        <td>
+                                            <Button class="btn btn-danger" onclick="DeleteCustomer(event,'${item.Cust_Code}')" >Xóa</Button>
+                                        </td>
+                                    </tr>
+                                    `;
+                        }
+                        tbody.append(htmlRowsData);
+                    } else if (result == "0") {
+                        alert("Có lỗi xảy ra khi tải dữ liệu từ máy chủ.");
+                    }
+                }
+                , before = function (){
+                    $("#waitingDiv").show();
+                }
+                , complete = function (){
+                    $("#waitingDiv").hide();
+                }
+            )
+        }
+
+        $('#lstCustomer').on('click', '.customer-row', function () 
+        {
+            let CustCode = $(this).attr('data-cust-code');
+
+            request
+                (
+                    url = "/Customer/CustomerList/?handler=LoadDetail"
+                    , data = { "CustCode": CustCode }
+                    , async = true
+                    , error = null
+                    , success = function (result) {
+                        if (result != "0") {
+                            data = JSON.parse(result);
+                            CusDetail = data[0];
+                            console.log(data);
+
+                            $('#inpCustCode').val(CusDetail.Cust_Code);
+                            $('#inpName').val(CusDetail.Name);
+                            $('#inpPhone').val(CusDetail.Phone1);
+                            $('#inpNote').val(CusDetail.Note);
+
+                            $('#modal').modal('show');
+                        } else {
+                            alert("Không tìm thấy khách hàng này");
+                        }
+                    }
+                    , before = null
+                    , complete = null
+                );
+        });
+
+        function DeleteCustomer(e, CustCode) {
+            //Chặn mở modal khi nhấn vào button xóa vì sự kiện mở modal(click) được gán vào thẻ tr
+            e.stopPropagation();
+
+            let isConfirm = confirm("Bạn muốn xóa khách hàng có mã: " + CustCode + " không ?");
+
+            if (isConfirm){
+                request
+                (
+                    url = "/Customer/CustomerList/?handler=DeleteItem"
+                    , data = { "CustCode": CustCode }
+                    , async = true
+                    , error = null
+                    , success = function () {
+                        alert("Xóa khách hàng " + CustCode + " thành công!");
+                    }
+                    , before = null
+                    , complete = function () {
+                        LoadLstCustomer();
+                    }
+                )
+            }
+        }
+
+        function UpdateCustomer() {
+            let CustCode = $("#inpCustCode").val().trim();
+            let Name = $("#inpName").val().trim();
+            let Phone1 = $("#inpPhone").val().trim();
+            let Note = $("#inpNote").val().trim();
+
+            request
+            (
+                url = "/Customer/CustomerList/?handler=UpdateData"
+                , data =
+                {
+                    "CustCode": CustCode
+                    , "Name": Name
+                    , "Phone1": Phone1
+                    , "Note": Note
+                }
+                , async = true
+                , error = null
+                , success = function (response) {
+                    if (response !== "0") {
+                        alert("Cập nhật khách hàng " + CustCode + " thành công!");
+                        $('#modal').modal('hide');
+                        LoadLstCustomer();
+                    } else {
+                        alert("Có lỗi hệ thống!");
+                    }
+                }
+                , before = null
+                , complete = null
+            );
+        }
+
+    </script>
+}
