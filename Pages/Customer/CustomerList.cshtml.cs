@@ -2,8 +2,6 @@ using CRUDCustomer.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Data;
-using System.Drawing;
-using System.Reflection;
 
 namespace CRUDCustomer.Pages.Customer
 {
@@ -20,18 +18,14 @@ namespace CRUDCustomer.Pages.Customer
         {
         }
 
-        public async Task<IActionResult> OnPostLoadDataList(string CustCode, int limit)
+        public async Task<IActionResult> OnPostLoadDataList(int CurrentID = 0, int Limit = 10)
         {
             try
             {
-                string code = string.IsNullOrEmpty(CustCode) ? "" : CustCode;
-
-                DataTable dt = new DataTable();
-
-                dt = await executeDataBase.ExecuteDataTable
+                DataTable dt = await executeDataBase.ExecuteDataTable
                     ("[YYY_sp_VTT_Customer_LoadList]"
-                        , "@Cust_Code", SqlDbType.NVarChar, code
-                        , "@limit", SqlDbType.Int, limit
+                        , "@CurrentID", SqlDbType.Int, CurrentID
+                        , "@Limit", SqlDbType.Int, Limit
                     );
                 if (dt != null)
                 {
@@ -48,24 +42,8 @@ namespace CRUDCustomer.Pages.Customer
             }
         }
 
-        public async Task<IActionResult> OnPostLoadDetail(string CustCode)
-        {
-            try
-            {
-                DataTable data = await executeDataBase.ExecuteDataTable
-                    ("[YYY_sp_VTT_Customer_LoadDetail]",
-                        "@Cust_Code", SqlDbType.NVarChar, CustCode ?? ""
-                    );
-                return Content(DataJson.Datatable(data));
-            }
-            catch (Exception ex)
-            {
-                return Content("[]");
-            }
-        }
-
         //Soft Delete (State = 0)
-        public async Task<IActionResult> OnPostDeleteItem(string CustCode)
+        public async Task<IActionResult> OnPostDeleteItem(int ID)
         {
             try
             {
@@ -73,7 +51,7 @@ namespace CRUDCustomer.Pages.Customer
 
                 data = await executeDataBase.ExecuteDataTable
                     ("[YYY_sp_VTT_Customer_Delete]",
-                        "@Cust_Code", SqlDbType.NVarChar, CustCode
+                        "@ID", SqlDbType.Int, ID
                     );
                 if (data != null && data.Rows.Count > 0)
                 {
@@ -83,31 +61,6 @@ namespace CRUDCustomer.Pages.Customer
             }
             catch (Exception ex)
             {
-                return Content("0");
-            }
-        }
-
-        public async Task<IActionResult> OnPostUpdateData(string CustCode, string Name, string Note, string Phone1)
-        {
-            try
-            {
-                DataTable data = await executeDataBase.ExecuteDataTable
-                    ("[YYY_sp_VTT_Customer_Update]"
-                        , "@Cust_Code", SqlDbType.NVarChar, CustCode ?? ""
-                        , "@Phone1", SqlDbType.NVarChar, Phone1 ?? ""
-                        , "@Name", SqlDbType.NVarChar, Name ?? ""
-                        , "@Note", SqlDbType.NVarChar, Note ?? ""
-                    );
-
-                if (data != null && data.Rows.Count > 0)
-                {
-                    return Content(DataJson.Datatable(data));
-                }
-                return Content("0");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Lỗi UpdateData: " + ex.ToString());
                 return Content("0");
             }
         }

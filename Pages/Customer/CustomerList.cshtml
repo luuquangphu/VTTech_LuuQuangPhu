@@ -3,76 +3,57 @@
 @{
     ViewData["Title"] = "Customer List";
 }
-<a asp-page="/Customer/CustomerDetail" class="btn btn-primary">
+<button type="button" class="btn btn-primary mb-3" onclick="OpenModal('0')">
     Thêm khách hàng mới
-</a>
-<div>
-    <table class="table table-hover">
-        <thead>
+</button>
+<div class="table-responsive overflow-auto shadow-sm border rounded mb-3" style="max-height: 550px;">
+    <table class="table table-hover mb-0">
+        <thead class="table-light sticky-top" style="z-index: 1;">
             <tr>
                 <th>STT</th>
                 <th>CusID</th>
                 <th>Name</th>
-                <th>STD</th>
+                <th>SDT</th>
                 <th>Ghi chú</th>
                 <th>Hành động</th>
             </tr>
         </thead>
         <tbody id="lstCustomer"></tbody>
     </table>
-    <div id="waitingDiv" class="waitingdiv text-center" style="display: none">
-        <div class="spinner-border text-primary" role="status"></div>
-    </div>
 </div>
 
-<div class="modal fade" id="modal">
-    <div class="modal-dialog bg-white">
-        <div class="modal-content">
-            <div class="modal-header fw-bold">
-                Thông tin khách hàng
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="this.blur()"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row mt-3 mb-3">
-                    <label class="col-sm-2 form-label">CusID:</label>
-                    <div class="col-sm-9" >
-                        <input id="inpCustCode" readonly class="form-control" type="text" />
-                    </div>
-                </div>
-                <div class="row mb-3">
-                    <label class="col-sm-2 form-label">Name:</label>
-                    <div class="col-sm-9">
-                        <input id="inpName" class="form-control" type="text" />
-                    </div>
-                </div>
-                <div class="row mb-3">
-                    <label class="col-sm-2 form-label">SDT:</label>
-                    <div class="col-sm-9">
-                        <input id="inpPhone" class="form-control" type="text" />
-                    </div>
-                </div>
-                <div class="row mb-3">
-                    <label class="col-sm-2 form-label">Ghi chú:</label>
-                    <div class="col-sm-9">
-                        <input id="inpNote" class="form-control" type="text" />
-                    </div>
-                </div>
-                <div>
-                    <button type="button" class="btn btn-primary" onclick="UpdateCustomer()">Cập nhật</button>
-                </div>
+<div id="waitingDiv" class="waitingdiv text-center my-3" style="display: none">
+    <div class="spinner-border text-primary" role="status"></div>
+</div>
+<div class="text-center mt-3 mb-5">
+    <button id="btnLoadMore" class="btn btn-secondary px-5" style="display:none;" onclick="LoadLstCustomer()">
+        Xem thêm
+    </button>
+</div>
+
+<div class="modal fade" id="mainModal" tabindex="-1">
+    <div class="modal-dialog modal-lg bg-white">
+        <div class="modal-content" id="mainModalContent">
+            <div class="text-center p-4">
+                <div class="spinner-border text-primary" role="status"></div>
+                <div class="mt-2">Đang tải form...</div>
             </div>
         </div>
     </div>
 </div>
+
 
 @Html.AntiForgeryToken()
 
 @section Scripts{
     <script>
         let limit = 10;
+        let currentID = 0;
+        let data;
+        let currentEditID = 0;
 
         $(document).ready(function () {
-            LoadLstCustomer();
+            LoadLstCustomer(1);
         });
 
         function request(url, data, async, error, success, before, complete) {
@@ -100,50 +81,48 @@
         }
 
         function LoadLstCustomer() {
+            data = [];
             request(
                 url = "/Customer/CustomerList/?handler=LoadDataList"
-                , data = { "CustCode": "", "Limit": limit }
+                , data = 
+                {
+                    "CurrentID": currentID
+                    , "Limit": limit 
+                }
                 , async = true
                 , error = null
                 , success = function (result) {
                     if (result != "[]") {
-                        let data = JSON.parse(result);
+                        data = JSON.parse(result);
                         let tbody = $('#lstCustomer');
-
-                        
-                        //Clear old data
-                        tbody.empty();
 
                         let htmlRowsData = '';
                         for (let i = 0; i < data.length; i++) {
                             let item = data[i];
 
-                            htmlRowsData +=
-                                `
-                                    <tr class="customer-row" data-cust-code="${item.Cust_Code}">
-                                        <td>${i + 1}</td>
-                                        <td>
-                                            ${item.Cust_Code}
-                                        </td>
-                                        <td>
-                                            ${item.Name || ""}
-                                        </td>
-                                        <td>
-                                            ${item.Phone1 || ""}
-                                        </td>
-                                        <td>
-                                            ${item.Note || "Không có"}
-                                        </td>
-                                        <td>
-                                            <Button class="btn btn-danger" onclick="DeleteCustomer(event,'${item.Cust_Code}')" >Xóa</Button>
-                                        </td>
-                                    </tr>
-                                    `;
+                            htmlRowsData += RenderData(data[i]);
                         }
                         tbody.append(htmlRowsData);
+
+                        //Update currentID
+                        currentID = data[data.length - 1].ID;
+
+                        if (data.length < limit) {
+                            $("#btnLoadMore").hide();
+                        } else {
+                            $("#btnLoadMore").show();
+                        }
+
                     } else if (result == "0") {
                         alert("Có lỗi xảy ra khi tải dữ liệu từ máy chủ.");
+                    } else {
+                        if (lastLoadedID === 0) {
+                            $('#lstCustomer').html("<tr><td colspan='6' class='text-center'>Không có dữ liệu</td></tr>");
+                        }
+                        $("#btnLoadMore").hide();
+                        $("#waitingDiv").hide();
                     }
+
                 }
                 , before = function (){
                     $("#waitingDiv").show();
@@ -152,40 +131,31 @@
                     $("#waitingDiv").hide();
                 }
             )
-        }
+        };
 
-        $('#lstCustomer').on('click', '.customer-row', function () 
-        {
-            let CustCode = $(this).attr('data-cust-code');
+        function RenderData(item) {
+            try {
+                let tr = `
+                        <tr id="row_customer_${item.ID}" class="customer-row" data-ID="${item.ID}">
+                            <td>${item.ID}</td>
+                            <td>${item.Cust_Code}</td>
+                            <td>${item.Name || ""}</td>
+                            <td>${item.Phone1 || ""}</td>
+                            <td>${item.Note || ""}</td>
+                            <td>
+                                <Button type="button" class="btn btn-warning" onclick="OpenModal('${item.ID}')">Sửa</Button>
+                                <Button class="btn btn-danger" onclick="DeleteCustomer(event, '${item.ID}', '${item.Cust_Code}')" >Xóa</Button>
+                            </td>
+                        </tr>
+                `;
+                return tr;
+            }
+            catch (ex) {
+                return ''
+            }
+        };
 
-            request
-                (
-                    url = "/Customer/CustomerList/?handler=LoadDetail"
-                    , data = { "CustCode": CustCode }
-                    , async = true
-                    , error = null
-                    , success = function (result) {
-                        if (result != "0") {
-                            data = JSON.parse(result);
-                            CusDetail = data[0];
-                            console.log(data);
-
-                            $('#inpCustCode').val(CusDetail.Cust_Code);
-                            $('#inpName').val(CusDetail.Name);
-                            $('#inpPhone').val(CusDetail.Phone1);
-                            $('#inpNote').val(CusDetail.Note);
-
-                            $('#modal').modal('show');
-                        } else {
-                            alert("Không tìm thấy khách hàng này");
-                        }
-                    }
-                    , before = null
-                    , complete = null
-                );
-        });
-
-        function DeleteCustomer(e, CustCode) {
+        function DeleteCustomer(e, ID, CustCode) {
             //Chặn mở modal khi nhấn vào button xóa vì sự kiện mở modal(click) được gán vào thẻ tr
             e.stopPropagation();
 
@@ -195,50 +165,32 @@
                 request
                 (
                     url = "/Customer/CustomerList/?handler=DeleteItem"
-                    , data = { "CustCode": CustCode }
+                    , data = { "ID": ID }
                     , async = true
                     , error = null
-                    , success = function () {
-                        alert("Xóa khách hàng " + CustCode + " thành công!");
+                    , success = function (result) {
+                        if (result != "0") {
+                            alert("Xóa khách hàng " + CustCode + " thành công!");
+                            $(`#row_customer_${ID}`).remove();
+                        }
                     }
                     , before = null
-                    , complete = function () {
-                        LoadLstCustomer();
-                    }
+                    , complete = null
                 )
             }
-        }
+        };
 
-        function UpdateCustomer() {
-            let CustCode = $("#inpCustCode").val().trim();
-            let Name = $("#inpName").val().trim();
-            let Phone1 = $("#inpPhone").val().trim();
-            let Note = $("#inpNote").val().trim();
+        function OpenModal(id) {
+            currentEditID = id;
 
-            request
-            (
-                url = "/Customer/CustomerList/?handler=UpdateData"
-                , data =
-                {
-                    "CustCode": CustCode
-                    , "Name": Name
-                    , "Phone1": Phone1
-                    , "Note": Note
+            $('#mainModal').modal('show');
+
+            $('#mainModalContent').load('/Customer/CustomerDetail?CurrentID=' + id, function (response, status) {
+                if (status === "error") {
+                    alert("Lỗi không thể tải được form!");
+                    $('#mainModal').modal('hide');
                 }
-                , async = true
-                , error = null
-                , success = function (response) {
-                    if (response !== "0") {
-                        alert("Cập nhật khách hàng " + CustCode + " thành công!");
-                        $('#modal').modal('hide');
-                        LoadLstCustomer();
-                    } else {
-                        alert("Có lỗi hệ thống!");
-                    }
-                }
-                , before = null
-                , complete = null
-            );
+            });
         }
 
     </script>

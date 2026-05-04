@@ -9,26 +9,68 @@ namespace CRUDCustomer.Pages.Customer
     {
         private readonly ExecuteDataBase executeDataBase;
 
+        public string _CurrentID { get; set; }
+
         public CustomerDetailModel(ExecuteDataBase executeDataBase)
         {
             this.executeDataBase = executeDataBase;
         }
 
         public void OnGet()
-        {  
+        {
+            var currentId = Request.Query["CurrentID"];
+            if (!string.IsNullOrEmpty(currentId))
+            {
+                _CurrentID = currentId.ToString();
+            } else
+            {
+                _CurrentID = "0";
+            }
         }
 
-        public async Task<IActionResult> OnPostInsertData(string CustCode, string Name, string Note, string Phone1)
+        public async Task<IActionResult> OnPostLoadDetail(int ID)
         {
             try
             {
                 DataTable data = await executeDataBase.ExecuteDataTable
+                    ("[YYY_sp_VTT_Customer_LoadDetail]",
+                        "@ID", SqlDbType.Int, ID
+                    );
+                return Content(DataJson.Datatable(data));
+            }
+            catch (Exception ex)
+            {
+                return Content("[]");
+            }
+        }
+
+        public async Task<IActionResult> OnPostExcuteData(int ID, string CustCode, string Name, string Note, string Phone1, string CurrentID)
+        {
+            try
+            {
+                DataTable data = new DataTable();
+
+                if (CurrentID == "0")
+                {
+                    data = await executeDataBase.ExecuteDataTable
                     ("[YYY_sp_VTT_Customer_Insert]"
                         , "@Cust_Code", SqlDbType.NVarChar, CustCode ?? ""
                         , "@Phone1", SqlDbType.NVarChar, Phone1 ?? ""
                         , "@Name", SqlDbType.NVarChar, Name ?? ""
                         , "@Note", SqlDbType.NVarChar, Note ?? ""
                     );
+                } else
+                {
+                    data = await executeDataBase.ExecuteDataTable
+                    ("[YYY_sp_VTT_Customer_Update]"
+                        , "@ID", SqlDbType.Int, ID
+                        , "@Cust_Code", SqlDbType.NVarChar, CustCode ?? ""
+                        , "@Phone1", SqlDbType.NVarChar, Phone1 ?? ""
+                        , "@Name", SqlDbType.NVarChar, Name ?? ""
+                        , "@Note", SqlDbType.NVarChar, Note ?? ""
+                    );
+                }
+                
 
                 if (data != null && data.Rows.Count > 0)
                 {

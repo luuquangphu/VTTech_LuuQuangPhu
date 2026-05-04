@@ -2,26 +2,19 @@ USE DemoCustomerNK_CN
 GO
 
 CREATE OR ALTER PROCEDURE [dbo].[YYY_sp_VTT_Customer_LoadList]
-    @PageNumber INT = 1,
+    @CurrentID INT = 0,
     @Limit INT = 10
 AS
 BEGIN
-    DECLARE @TotalRows INT = (SELECT COUNT(*) FROM VTT_Customer WHERE State = 1);
-
-	DECLARE @Offset INT = (@PageNumber - 1) * @Limit;
-
-	SELECT
+	SELECT TOP (@Limit) 
 		  ID
 		, Name
 		, Cust_Code
 		, Phone1
 		, Note
-		, TotalRows = @TotalRows 
 	FROM VTT_Customer C 
-	WHERE State = 1
-	ORDER BY ID
-	OFFSET @Offset ROWS
-	FETCH NEXT @Limit ROW ONLY
+	WHERE State = 1	AND ID > @CurrentID
+	ORDER BY ID ASC;
 END
 GO
 
@@ -64,7 +57,13 @@ BEGIN
 		, Phone1 = @Phone1
     WHERE ID = @ID;
 
-    SELECT 1 AS RESULT, @Cust_Code AS Cust_Code;
+    SELECT 
+		RESULT = 1
+		, ID = @ID
+		, Cust_Code = @Cust_Code
+		, Name = @Name
+		, Phone1 = @Phone1
+		, Note = @Note
 END
 GO
 
@@ -79,13 +78,4 @@ BEGIN
 END
 GO
 
-
-EXEC [dbo].[YYY_sp_VTT_Customer_LoadList] 
-    @PageNumber = 2, 
-    @Limit = 10;
-
-
-EXEC [dbo].[YYY_sp_VTT_Customer_LoadDetail] @ID = 1
-
-EXEC [dbo].[YYY_sp_VTT_Customer_Delete] @ID = 1
   
