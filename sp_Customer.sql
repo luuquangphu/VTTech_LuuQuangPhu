@@ -38,7 +38,16 @@ BEGIN
     INSERT INTO VTT_Customer (Cust_Code, Name, Note, Phone1, Created, Created_By, State)
     VALUES (@Cust_Code, @Name, @Note, @Phone1, GETDATE(), 1, 1);
     
-    SELECT 1 AS RESULT, @Cust_Code AS Cust_Code;
+    DECLARE @NewID INT = SCOPE_IDENTITY();
+
+    SELECT 
+		ID
+		, Cust_Code
+		, Name
+		, Phone1
+		, Note
+    FROM VTT_Customer
+    WHERE ID = @NewID;
 END
 GO
 
@@ -57,13 +66,14 @@ BEGIN
 		, Phone1 = @Phone1
     WHERE ID = @ID;
 
-    SELECT 
-		RESULT = 1
-		, ID = @ID
-		, Cust_Code = @Cust_Code
-		, Name = @Name
-		, Phone1 = @Phone1
-		, Note = @Note
+    SELECT	
+		ID
+		, Name
+		, Cust_Code
+		, Phone1
+		, Note
+	FROM VTT_Customer
+	WHERE ID = @ID
 END
 GO
 
