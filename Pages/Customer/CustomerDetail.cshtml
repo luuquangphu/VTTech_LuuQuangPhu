@@ -15,7 +15,6 @@
             <label class="form-label mb-0 fw-bold" style="width: 80px;">CusID: </label>
             <div class="d-flex flex-column w-100">
                 <input id="inpCustCode" class="form-control" type="text" />
-                <span id="errorCustCode" class="text-danger mt-1" style="font-size: 15px;"></span>
             </div>
         </div>
         <div class="d-flex align-items-center mb-3">
@@ -34,13 +33,13 @@
 
     <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-        <button type="button" class="btn btn-success px-4" onclick="CreateCustomer()">Lưu</button>
+        <button type="button" class="btn btn-success px-4" onclick="ExcuteCustomer()">Lưu</button>
     </div>
 </form>
 
 <script>
 
-    var detailCustomerId = '@Model._CurrentID';
+    var CustomerId = '@Model._CurrentID';
 
 
     $(document).ready(function () {
@@ -48,10 +47,10 @@
     });
 
     function LoadDataUpdateCustomer() {
-        if (detailCustomerId != "0") {
+        if (CustomerId != "0") {
             request(
                 "/Customer/CustomerDetail?handler=LoadDetail",
-                { "ID": detailCustomerId },
+                { "ID": CustomerId },
                 true, null,
                 function (res) {
                     if (res != "[]" && res != "0") {
@@ -68,24 +67,16 @@
         }
     }
 
-    function CreateCustomer() {
+    function ExcuteCustomer() {
         let CustCode = $("#inpCustCode").val().trim();
         let Name = $("#inpName").val().trim();
         let Phone1 = $("#inpPhone1").val().trim();
         let Note = $("#inpNote").val().trim();
 
-        if (CustCode == "") {
-            $("#errorCustCode").text("Không được để trống mã khách hàng");
-            return;
-        } else {
-            $("#errorCustCode").text("");
-        }
-
         request(
             "/Customer/CustomerDetail/?handler=ExcuteData",
             {
-                "ID": detailCustomerId,
-                "CurrentId": detailCustomerId,
+                "CustomerID": CustomerId,
                 "CustCode": CustCode,
                 "Name": Name,
                 "Phone1": Phone1,
@@ -97,11 +88,11 @@
                     let data = JSON.parse(response);
                     let item = data[0];
 
-                    if (detailCustomerId == "0") {
-                        $('#lstCustomer').prepend(RenderData(item));
+                    if (CustomerId == "0") {
+                        LoadLstCustomer("ADD", item);
                         alert("Tạo khách hàng thành công!");
                     } else {
-                        $(`#row_customer_${detailCustomerId}`).replaceWith(RenderData(item));
+                        LoadLstCustomer("EDIT", item);
                         alert("Cập nhật khách hàng thành công!");
                     }
 

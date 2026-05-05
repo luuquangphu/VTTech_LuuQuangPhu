@@ -44,13 +44,13 @@ namespace CRUDCustomer.Pages.Customer
             }
         }
 
-        public async Task<IActionResult> OnPostExcuteData(int ID, string CustCode, string Name, string Note, string Phone1, string CurrentID)
+        public async Task<IActionResult> OnPostExcuteData(int CustomerID, string CustCode, string Name, string Note, string Phone1)
         {
             try
             {
                 DataTable data = new DataTable();
 
-                if (CurrentID == "0")
+                if (CustomerID == 0)
                 {
                     data = await executeDataBase.ExecuteDataTable
                     ("[YYY_sp_VTT_Customer_Insert]"
@@ -63,7 +63,7 @@ namespace CRUDCustomer.Pages.Customer
                 {
                     data = await executeDataBase.ExecuteDataTable
                     ("[YYY_sp_VTT_Customer_Update]"
-                        , "@ID", SqlDbType.Int, ID
+                        , "@ID", SqlDbType.Int, CustomerID
                         , "@Cust_Code", SqlDbType.NVarChar, CustCode ?? ""
                         , "@Phone1", SqlDbType.NVarChar, Phone1 ?? ""
                         , "@Name", SqlDbType.NVarChar, Name ?? ""

@@ -2,7 +2,7 @@ USE DemoCustomerNK_CN
 GO
 
 CREATE OR ALTER PROCEDURE [dbo].[YYY_sp_VTT_Customer_LoadList]
-    @CurrentID INT = 0,
+    @CustomerID INT = 0,
     @Limit INT = 10
 AS
 BEGIN
@@ -13,7 +13,7 @@ BEGIN
 		, Phone1
 		, Note
 	FROM VTT_Customer C 
-	WHERE State = 1	AND ID > @CurrentID
+	WHERE State = 1	AND ID > @CustomerID
 	ORDER BY ID ASC;
 END
 GO
@@ -87,5 +87,4 @@ BEGIN
     SELECT 1 AS RESULT;
 END
 GO
-
   

@@ -18,20 +18,20 @@ namespace CRUDCustomer.Pages.Customer
         {
         }
 
-        public async Task<IActionResult> OnPostLoadDataList(int CurrentID = 0, int Limit = 10)
+        public async Task<IActionResult> OnPostLoadDataList(int CustomerID = 0, int Limit = 10)
         {
             try
             {
                 DataTable dt = await executeDataBase.ExecuteDataTable
                     ("[YYY_sp_VTT_Customer_LoadList]"
-                        , "@CurrentID", SqlDbType.Int, CurrentID
+                        , "@CustomerID", SqlDbType.Int, CustomerID
                         , "@Limit", SqlDbType.Int, Limit
                     );
                 if (dt != null)
                 {
                     string json = DataJson.Datatable(dt);
 
-                    Console.WriteLine("=== Load List ===\n" + json);
+                    //Console.WriteLine("=== Load List ===\n" + json);
                     return Content(json);
                 }
                 return Content("[]");

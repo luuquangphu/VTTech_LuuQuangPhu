@@ -3,10 +3,15 @@
 @{
     ViewData["Title"] = "Customer List";
 }
-<button type="button" class="btn btn-primary mb-3" onclick="OpenModal('0')">
+<button type="button" class="btn btn-success mb-3" onclick="OpenModal('0')">
     Thêm khách hàng mới
 </button>
-<div class="table-responsive overflow-auto shadow-sm border rounded mb-3" style="max-height: 550px;">
+<div class="d-flex align-items-center mb-2">
+    <label class="form-label me-1">Tìm kiếm:</label>
+    <input id="inpSearch" class="form-control form-control-sm me-2" style="max-width: 250px" type="text" placeholder="Nhập tên, mã, sđt...">
+    <button class="btn btn-sm btn-primary" type="button" onclick="SearchLocalData()">Tìm kiếm</button>
+</div>
+<div class="table-responsive overflow-auto shadow-sm border rounded mb-3" style="max-height: 500px;">
     <table class="table table-hover mb-0">
         <thead class="table-light sticky-top" style="z-index: 1;">
             <tr>
@@ -26,7 +31,7 @@
     <div class="spinner-border text-primary" role="status"></div>
 </div>
 <div class="text-center mt-3 mb-5">
-    <button id="btnLoadMore" class="btn btn-secondary px-5" style="display:none;" onclick="LoadLstCustomer()">
+    <button id="btnLoadMore" class="btn btn-secondary px-5" style="display:none;" onclick="LoadLstCustomer('LOAD')">
         Xem thêm
     </button>
 </div>
@@ -48,12 +53,13 @@
 @section Scripts{
     <script>
         let limit = 10;
-        let currentID = 0;
-        let data;
+        let CustomerID = 0;
+        let dataList = [];
         let currentEditID = 0;
+        let isDoneLoadMore = false;
 
         $(document).ready(function () {
-            LoadLstCustomer(1);
+            LoadLstCustomer("RESET");
         });
 
         function request(url, data, async, error, success, before, complete) {
@@ -80,80 +86,123 @@
             });
         };
 
-        function LoadLstCustomer() {
-            data = [];
-            request(
-                url = "/Customer/CustomerList/?handler=LoadDataList"
-                , data = 
-                {
-                    "CurrentID": currentID
-                    , "Limit": limit 
-                }
-                , async = true
-                , error = null
-                , success = function (result) {
-                    if (result != "[]") {
-                        data = JSON.parse(result);
-                        let tbody = $('#lstCustomer');
+            function LoadLstCustomer(action = "LOAD", item = null) {
+                tbody = $("#lstCustomer");
 
-                        let htmlRowsData = '';
-                        for (let i = 0; i < data.length; i++) {
-                            let item = data[i];
-
-                            htmlRowsData += RenderData(data[i]);
-                        }
-                        tbody.append(htmlRowsData);
-
-                        //Update currentID
-                        currentID = data[data.length - 1].ID;
-
-                        if (data.length < limit) {
-                            $("#btnLoadMore").hide();
-                        } else {
-                            $("#btnLoadMore").show();
-                        }
-
-                    } else if (result == "0") {
-                        alert("Có lỗi xảy ra khi tải dữ liệu từ máy chủ.");
+                if (action === "RENDER_LIST") {
+                    tbody.empty();
+                    if (item && item.length > 0) {
+                        RenderData(item, "lstCustomer");
                     } else {
-                        if (lastLoadedID === 0) {
-                            $('#lstCustomer').html("<tr><td colspan='6' class='text-center'>Không có dữ liệu</td></tr>");
+                    tbody.html("<tr><td colspan='6' class='text-center text-danger'>Không có dữ liệu phù hợp</td></tr>");
+                    }
+                    return;
+                }
+
+                if (action === "ADD") {
+                    dataList.unshift(item);
+                    tbody.prepend(RenderItem(item));
+                    return;
+                }
+                else if (action === "EDIT") {
+                    let index = dataList.findIndex(x => x.ID == item.ID);
+                    if (index !== -1) dataList[index] = item;
+                    $(`#row_customer_${item.ID}`).replaceWith(RenderItem(item));
+                    return;
+                }
+                else if (action === "DELETE") {
+                    dataList = dataList.filter(x => x.ID != item);
+                    $(`#row_customer_${item}`).remove();
+                    return;
+                }
+
+                if (action === "RESET") {
+                    CustomerID = 0;
+                    dataList = [];
+                    $('#lstCustomer').empty();
+                    isDoneLoadMore = false;
+                }
+                request(
+                    url = "/Customer/CustomerList/?handler=LoadDataList"
+                    ,
+                    data =
+                    {
+                        "CustomerID": CustomerID
+                        , "Limit": limit 
+                    }
+                    , async = true
+                    , error = null
+                    , success = function (result) {
+                        if (result != "[]") {
+                            let data = JSON.parse(result);
+                            dataList = dataList.concat(data);
+
+                            //Update CustomerID
+                            CustomerID = data[data.length - 1].ID;
+
+                            RenderData(data, "lstCustomer")
+
+                            if (data.length < limit) {
+                                $("#btnLoadMore").hide();
+                                isDoneLoadMore = true;
+                            } else {
+                                $("#btnLoadMore").show();
+                            }
+
+                        } else if (result == "[]") {
+                            $("#btnLoadMore").hide();
+                            isDoneLoadMore = true;
+                            if (CustomerID === 0) {
+                                $('#lstCustomer').html("<tr><td colspan='6' class='text-center'>Không có dữ liệu</td></tr>");
+                            }
+                        } else {
+                            alert("Có lỗi xảy ra từ máy chủ.");
                         }
-                        $("#btnLoadMore").hide();
+
+                    }
+                    , before = function (){
+                        $("#waitingDiv").show();
+                    }
+                    , complete = function (){
                         $("#waitingDiv").hide();
                     }
+                )
+            };
 
-                }
-                , before = function (){
-                    $("#waitingDiv").show();
-                }
-                , complete = function (){
-                    $("#waitingDiv").hide();
-                }
-            )
-        };
+            function RenderData (data, id) {
+                let tbody = $('#' + id);
 
-        function RenderData(item) {
-            try {
-                let tr = `
-                        <tr id="row_customer_${item.ID}" class="customer-row" data-ID="${item.ID}">
-                            <td>${item.ID}</td>
-                            <td>${item.Cust_Code}</td>
-                            <td>${item.Name || ""}</td>
-                            <td>${item.Phone1 || ""}</td>
-                            <td>${item.Note || ""}</td>
-                            <td>
-                                <Button type="button" class="btn btn-warning" onclick="OpenModal('${item.ID}')">Sửa</Button>
-                                <Button class="btn btn-danger" onclick="DeleteCustomer(event, '${item.ID}', '${item.Cust_Code}')" >Xóa</Button>
-                            </td>
-                        </tr>
-                `;
-                return tr;
+                if (tbody != null && data && data.length > 0) {
+                    let htmlRowsData = '';
+                    for (let i = 0; i < data.length; i++) {
+                        htmlRowsData += RenderItem(data[i]);
+                    }
+
+                    tbody.append(htmlRowsData);
+                }
             }
-            catch (ex) {
-                return ''
-            }
-        };
+
+            function RenderItem(item) {
+                try {
+                    let tr = `
+                            <tr id="row_customer_${item.ID}" class="customer-row" data-ID="${item.ID}">
+                                <td>${item.ID}</td>
+                                <td>${item.Cust_Code}</td>
+                                <td>${item.Name || ""}</td>
+                                <td>${item.Phone1 || ""}</td>
+                                <td>${item.Note || ""}</td>
+                                <td>
+                                    <Button type="button" class="btn btn-warning" onclick="OpenModal('${item.ID}')">Sửa</Button>
+                                    <Button class="btn btn-danger" onclick="DeleteCustomer(event, '${item.ID}', '${item.Cust_Code}')" >Xóa</Button>
+                                </td>
+                            </tr>
+                    `;
+                    return tr;
+                }
+                catch (ex) {
+                    return ''
+                }
+            };
 
         function DeleteCustomer(e, ID, CustCode) {
             //Chặn mở modal khi nhấn vào button xóa vì sự kiện mở modal(click) được gán vào thẻ tr
@@ -171,7 +220,7 @@
                     , success = function (result) {
                         if (result != "0") {
                             alert("Xóa khách hàng " + CustCode + " thành công!");
-                            $(`#row_customer_${ID}`).remove();
+                            LoadLstCustomer("DELETE", ID);
                         }
                     }
                     , before = null
@@ -192,6 +241,25 @@
                 }
             });
         };
+
+        function SearchLocalData() {
+            let keyword = $("#inpSearch").val().toLowerCase().trim();
+
+            if (keyword === "") {
+                // Trả về dữ liệu gốc
+                LoadLstCustomer("RENDER_LIST", dataList);
+                if (!isDoneLoadMore) $("#btnLoadMore").show();
+            } else {
+                let filtered = dataList.filter(x =>
+                    (x.Name && x.Name.toLowerCase().includes(keyword)) ||
+                    (x.Cust_Code && x.Cust_Code.toLowerCase().includes(keyword))
+                );
+
+                // Vẽ kết quả lọc
+                LoadLstCustomer("RENDER_LIST", filtered);
+                $("#btnLoadMore").hide();
+            }
+        }
 
     </script>
 }
