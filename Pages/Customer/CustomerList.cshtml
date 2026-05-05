@@ -31,7 +31,7 @@
     <div class="spinner-border text-primary" role="status"></div>
 </div>
 <div class="text-center mt-3 mb-5">
-    <button id="btnLoadMore" class="btn btn-secondary px-5" style="display:none;" onclick="LoadLstCustomer('LOAD')">
+    <button id="btnLoadMore" class="btn btn-secondary px-5" style="display:none;" onclick="LoadLstCustomer(0,1)">
         Xem thêm
     </button>
 </div>
@@ -53,13 +53,16 @@
 @section Scripts{
     <script>
         let limit = 10;
-        let CustomerID = 0;
+        //This valiable use for save last CustomerId in dataList to use in SP to Select Customer next this ID
+        let beginID = 0;
         let dataList = [];
+        //Use for open modal to Edit item
         let currentEditID = 0;
         let isDoneLoadMore = false;
 
+
         $(document).ready(function () {
-            LoadLstCustomer("RESET");
+            LoadLstCustomer(0, 0);
         });
 
         function request(url, data, async, error, success, before, complete) {
@@ -86,75 +89,81 @@
             });
         };
 
-            function LoadLstCustomer(action = "LOAD", item = null) {
-                tbody = $("#lstCustomer");
-
-                if (action === "RENDER_LIST") {
-                    tbody.empty();
-                    if (item && item.length > 0) {
-                        RenderData(item, "lstCustomer");
-                    } else {
-                    tbody.html("<tr><td colspan='6' class='text-center text-danger'>Không có dữ liệu phù hợp</td></tr>");
-                    }
-                    return;
-                }
-
-                if (action === "ADD") {
-                    dataList.unshift(item);
-                    tbody.prepend(RenderItem(item));
-                    return;
-                }
-                else if (action === "EDIT") {
-                    let index = dataList.findIndex(x => x.ID == item.ID);
-                    if (index !== -1) dataList[index] = item;
-                    $(`#row_customer_${item.ID}`).replaceWith(RenderItem(item));
-                    return;
-                }
-                else if (action === "DELETE") {
-                    dataList = dataList.filter(x => x.ID != item);
-                    $(`#row_customer_${item}`).remove();
-                    return;
-                }
-
-                if (action === "RESET") {
-                    CustomerID = 0;
+        function LoadLstCustomer(currentId = 0, isLoadMore = 0) {
+                
+                if(currentId == 0 && isLoadMore == 0){
+                    beginID = 0;
                     dataList = [];
-                    $('#lstCustomer').empty();
                     isDoneLoadMore = false;
-                }
+                    $('#lstCustomer').empty();
+                };
+
                 request(
                     url = "/Customer/CustomerList/?handler=LoadDataList"
                     ,
                     data =
                     {
-                        "CustomerID": CustomerID
+                        "CustomerID": beginID
                         , "Limit": limit 
+                        , "CurrentID": currentId
                     }
                     , async = true
                     , error = null
                     , success = function (result) {
                         if (result != "[]") {
                             let data = JSON.parse(result);
-                            dataList = dataList.concat(data);
+                            
+                            if (currentId == 0) {
+                                dataList = dataList.concat(data);
 
-                            //Update CustomerID
-                            CustomerID = data[data.length - 1].ID;
+                                //Update beginID
+                                beginID = data[data.length - 1].ID;
 
-                            RenderData(data, "lstCustomer")
+                                RenderData(data, "lstCustomer")
 
-                            if (data.length < limit) {
-                                $("#btnLoadMore").hide();
+                                if (data.length < limit) {
+                                    $("#btnLoadMore").hide();
+                                    isDoneLoadMore = true;
+                                } else {
+                                    $("#btnLoadMore").show();
+                                }
+                            } else {
+                                if (data && data.length != 0) {
+                                    //Case edit: Update Item in dataList and <tr>
+                                    if ($('#row_customer_' + currentId).length > 0) {
+                                        let index = dataList.findIndex(x => x.ID == data[0].ID);
+                                        if (index !== -1) dataList[index] = data[0];
+                                        $(`#row_customer_${data[0].ID}`).replaceWith(RenderItem(data[0]));
+                                    } else {
+                                        //Case Insert: Push new item head of dataList and <tr>
+                                        dataList.push(data[0]);
+                                        $('#lstCustomer').prepend(RenderItem(data[0]));
+                                    }
+                                } else {
+                                    //Case Delete: Remove item out of dataList and <tr>
+                                    if ($('#row_customer_' + currentId).length > 0) {
+                                        dataList = dataList.filter(x => x.ID != currentId);
+                                        $(`#row_customer_${currentId}`).remove();
+                                    }
+                                }
+                            }
+                        } else if (result == "[]") {
+                            
+                            //Load More
+                            if (isLoadMore == 1) {
                                 isDoneLoadMore = true;
                             } else {
-                                $("#btnLoadMore").show();
+                            if (currentId != 0) {
+                                if ($('#row_customer_' + currentId).length > 0) {
+                                    dataList = dataList.filter(x => x.ID != currentId);
+                                    $('#row_customer_' + currentId).remove();
+                                }
+                            }
+                                else {
+
+                                }
                             }
 
-                        } else if (result == "[]") {
-                            $("#btnLoadMore").hide();
-                            isDoneLoadMore = true;
-                            if (CustomerID === 0) {
-                                $('#lstCustomer').html("<tr><td colspan='6' class='text-center'>Không có dữ liệu</td></tr>");
-                            }
                         } else {
                             alert("Có lỗi xảy ra từ máy chủ.");
                         }
@@ -219,8 +228,9 @@
                     , error = null
                     , success = function (result) {
                         if (result != "0") {
+
                             alert("Xóa khách hàng " + CustCode + " thành công!");
-                            LoadLstCustomer("DELETE", ID);
+                            LoadLstCustomer(ID, 0);
                         }
                     }
                     , before = null
@@ -247,7 +257,7 @@
 
             if (keyword === "") {
                 // Trả về dữ liệu gốc
-                LoadLstCustomer("RENDER_LIST", dataList);
+                LoadLstCustomer(0, 0);
                 if (!isDoneLoadMore) $("#btnLoadMore").show();
             } else {
                 let filtered = dataList.filter(x =>
@@ -255,8 +265,10 @@
                     (x.Cust_Code && x.Cust_Code.toLowerCase().includes(keyword))
                 );
 
+                $("#lstCustomer").empty();
+
                 // Vẽ kết quả lọc
-                LoadLstCustomer("RENDER_LIST", filtered);
+                RenderData(filtered, "lstCustomer");
                 $("#btnLoadMore").hide();
             }
         }

@@ -1,20 +1,27 @@
-USE DemoCustomerNK_CN
+﻿USE DemoCustomerNK_CN
 GO
 
 CREATE OR ALTER PROCEDURE [dbo].[YYY_sp_VTT_Customer_LoadList]
     @CustomerID INT = 0,
-    @Limit INT = 10
+    @Limit INT = 10,
+    @CurrentID INT = 0
 AS
 BEGIN
-	SELECT TOP (@Limit) 
-		  ID
-		, Name
-		, Cust_Code
-		, Phone1
-		, Note
-	FROM VTT_Customer C 
-	WHERE State = 1	AND ID > @CustomerID
-	ORDER BY ID ASC;
+    IF @CurrentID <> 0
+    BEGIN
+        SELECT 
+            ID, Name, Cust_Code, Phone1, Note
+        FROM VTT_Customer 
+        WHERE ID = @CurrentID AND State = 1;
+    END
+    ELSE
+    BEGIN
+        SELECT TOP (@Limit) 
+            ID, Name, Cust_Code, Phone1, Note
+        FROM VTT_Customer C 
+        WHERE State = 1 AND (@CustomerID = 0 OR ID < @CustomerID)
+        ORDER BY ID DESC;
+    END
 END
 GO
 
@@ -84,7 +91,14 @@ BEGIN
     UPDATE VTT_Customer
     SET State = 0
     WHERE ID = @ID;
-    SELECT 1 AS RESULT;
+    SELECT	
+		ID
+		, Name
+		, Cust_Code
+		, Phone1
+		, Note
+	FROM VTT_Customer
+	WHERE ID = @ID
 END
 GO
   

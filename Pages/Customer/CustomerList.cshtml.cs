@@ -18,7 +18,7 @@ namespace CRUDCustomer.Pages.Customer
         {
         }
 
-        public async Task<IActionResult> OnPostLoadDataList(int CustomerID = 0, int Limit = 10)
+        public async Task<IActionResult> OnPostLoadDataList(int CurrentID = 0, int CustomerID = 0, int Limit = 10)
         {
             try
             {
@@ -26,13 +26,14 @@ namespace CRUDCustomer.Pages.Customer
                     ("[YYY_sp_VTT_Customer_LoadList]"
                         , "@CustomerID", SqlDbType.Int, CustomerID
                         , "@Limit", SqlDbType.Int, Limit
+                        , "@CurrentId", SqlDbType.Int, CurrentID
                     );
                 if (dt != null)
                 {
-                    string json = DataJson.Datatable(dt);
+                    string data = DataJson.Datatable(dt);
 
                     //Console.WriteLine("=== Load List ===\n" + json);
-                    return Content(json);
+                    return Content(data);
                 }
                 return Content("[]");
             }
@@ -55,7 +56,7 @@ namespace CRUDCustomer.Pages.Customer
                     );
                 if (data != null && data.Rows.Count > 0)
                 {
-                    return Content(data.Rows[0]["RESULT"].ToString());
+                    return Content(DataJson.Datatable(data));
                 }
                 return Content("0");
             }
