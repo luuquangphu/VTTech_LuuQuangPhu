@@ -2,28 +2,41 @@
 GO
 
 CREATE OR ALTER PROCEDURE [dbo].[YYY_sp_VTT_Customer_LoadList]
-    @CustomerID INT = 0,
+	@beginID INT = 0,
     @Limit INT = 10,
     @CurrentID INT = 0
 AS
 BEGIN
-    IF @CurrentID <> 0
-    BEGIN
-        SELECT 
-            ID, Name, Cust_Code, Phone1, Note
-        FROM VTT_Customer 
-        WHERE ID = @CurrentID AND State = 1;
-    END
-    ELSE
-    BEGIN
-        SELECT TOP (@Limit) 
-            ID, Name, Cust_Code, Phone1, Note
-        FROM VTT_Customer C 
-        WHERE State = 1 AND (@CustomerID = 0 OR ID < @CustomerID)
-        ORDER BY ID DESC;
-    END
+	SELECT
+		C.ID
+		, C.Name
+		, C.Phone1
+		, C.Note
+		, C.Cust_Code
+	INTO #LISTCUSTOMER
+	FROM 
+	(
+		SELECT TOP (@Limit) ID 
+		FROM VTT_Customer 
+		WHERE @CurrentID <> 0 AND ID = @CurrentID AND State = 1
+		ORDER BY ID DESC
+
+		UNION ALL
+
+		SELECT TOP (@Limit) ID 
+		FROM VTT_Customer 
+		WHERE @CurrentID = 0 AND State = 1 AND (@beginID = 0 OR ID < @beginID)
+		ORDER BY ID DESC
+	) LC
+	INNER JOIN VTT_Customer C ON C.ID = LC.ID
+
+	SELECT * FROM #LISTCUSTOMER
+	
+	DROP TABLE #LISTCUSTOMER
+
 END
 GO
+	
 
 CREATE OR ALTER PROCEDURE [dbo].[YYY_sp_VTT_Customer_LoadDetail]
     @ID INT
@@ -91,14 +104,8 @@ BEGIN
     UPDATE VTT_Customer
     SET State = 0
     WHERE ID = @ID;
-    SELECT	
-		ID
-		, Name
-		, Cust_Code
-		, Phone1
-		, Note
-	FROM VTT_Customer
-	WHERE ID = @ID
 END
 GO
+
+
   

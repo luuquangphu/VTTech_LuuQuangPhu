@@ -12,7 +12,7 @@
 
     <div class="modal-body mx-2">
         <div class="d-flex align-items-center mb-3">
-            <label class="form-label mb-0 fw-bold" style="width: 80px;">CusID: </label>
+            <label class="form-label mb-0 fw-bold" style="width: 80px;">Cust_Code: </label>
             <div class="d-flex flex-column w-100">
                 <input id="inpCustCode" class="form-control" type="text" />
             </div>
@@ -87,17 +87,18 @@
                 if (response !== "0") {
                     let data = JSON.parse(response);
 
-                    if (CustomerId == "0") {
-                        LoadLstCustomer(data[0].ID, 0);
-                        alert("Tạo khách hàng thành công!");
-                    } else {
-                        LoadLstCustomer(data[0].ID, 0);
-                        alert("Cập nhật khách hàng thành công!");
-                    }
+                    LoadLstCustomer(data[0].ID, 0);
 
-                    if (document.activeElement) {
-                        document.activeElement.blur();
-                    }
+                    $('#mainModal').one('hidden.bs.modal', function () {
+                        LoadLstCustomer(data[0].ID, 0);
+
+                        if (CustomerId == "0") {
+                            alert("Tạo khách hàng thành công!");
+                        } else {
+                            alert("Cập nhật khách hàng thành công!");
+                        }
+                    });
+
                     $('#mainModal').modal('hide');
                 } else {
                     alert("Mã khách hàng có thể đã tồn tại hoặc có lỗi hệ thống!");

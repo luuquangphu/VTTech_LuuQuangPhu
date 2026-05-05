@@ -18,13 +18,13 @@ namespace CRUDCustomer.Pages.Customer
         {
         }
 
-        public async Task<IActionResult> OnPostLoadDataList(int CurrentID = 0, int CustomerID = 0, int Limit = 10)
+        public async Task<IActionResult> OnPostLoadDataList(int CurrentID = 0, int beginID = 0, int Limit = 10)
         {
             try
             {
                 DataTable dt = await executeDataBase.ExecuteDataTable
                     ("[YYY_sp_VTT_Customer_LoadList]"
-                        , "@CustomerID", SqlDbType.Int, CustomerID
+                        , "@beginID", SqlDbType.Int, beginID
                         , "@Limit", SqlDbType.Int, Limit
                         , "@CurrentId", SqlDbType.Int, CurrentID
                     );
