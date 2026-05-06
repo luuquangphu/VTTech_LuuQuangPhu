@@ -1,0 +1,268 @@
+﻿@page
+@model CRUDCustomer.Pages.Service.ServiceListModel
+@{
+    ViewData["Title"] = "Service List";
+}
+
+<button type="button" class="btn btn-success mb-3" onclick="OpenModal('0')">
+    Thêm dịch vụ mới
+</button>
+<div class="d-flex align-items-center mb-2">
+    <label class="form-label me-1">Tìm kiếm:</label>
+    <input id="inpSearch" class="form-control form-control-sm me-2" style="max-width: 250px" type="text" placeholder="Nhập tên, mã, sđt...">
+    <button class="btn btn-sm btn-primary" type="button" onclick="SearchLocalData()">Tìm kiếm</button>
+</div>
+<div class="table-responsive overflow-auto shadow-sm border rounded mb-3" style="max-height: 500px;">
+    <table class="table table-hover mb-0">
+        <thead class="table-light sticky-top" style="z-index: 1;">
+            <tr>
+                <th>STT</th>
+                <th>Name</th>
+                <th>ServiceCode</th>
+                <th>UnitCount</th>
+                <th>Note</th>
+                <th>Price</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="lstService"></tbody>
+    </table>
+</div>
+
+<div id="waitingDiv" class="waitingdiv text-center my-3" style="display: none">
+    <div class="spinner-border text-primary" role="status"></div>
+</div>
+<div class="text-center mt-3 mb-5">
+    <button id="btnLoadMore" class="btn btn-secondary px-5" style="display:none;" onclick="LoadList(0,1)">
+        Xem thêm
+    </button>
+</div>
+
+<div class="modal fade" id="mainModal" tabindex="-1">
+    <div class="modal-dialog modal-lg bg-white">
+        <div class="modal-content" id="mainModalContent">
+            <div class="text-center p-4">
+                <div class="spinner-border text-primary" role="status"></div>
+                <div class="mt-2">Đang tải form...</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@Html.AntiForgeryToken()
+
+@section Scripts {
+    <script>
+
+        let beginID = 0;
+        let currentID = 0;
+        let dataList;
+        let limit = 10;
+        let isDoneLoadMore = false;
+        let currentEditID = 0;
+
+        $(document).ready(function () {
+            LoadList(0, 0);
+        });
+
+        function AjaxLoad (url, data, async, error, success, before, complete) {
+            $.ajax({
+                type: "POST",
+                url: url
+                , data: data
+                , async: async
+                , beforeSend: function (xhr) {
+                    xhr.setRequestHeader("RequestVerificationToken",
+                        $('input:hidden[name="__RequestVerificationToken"]').val());
+                    if (before) before();
+                }
+                , success: function (res) 
+                {
+                    if (success) success(res);
+                }
+                , error: function (err) {
+                    if (error) error(err);
+                    else console.error("Ajax Error:", err);
+                }
+                , complete: function () {
+                    if (complete) complete();
+                }
+
+            });
+        };
+
+        function LoadList(currentID = 0, isLoadMore = 0) {
+            if (currentID == 0 && isLoadMore == 0) {
+                dataList = [];
+                beginID = 0;
+                isDoneLoadMore = false;
+                $("#lstService").empty();
+            }
+
+            AjaxLoad
+            (
+                url = "/Service/ServiceList/?handler=LoadList",
+                data = { "beginID": beginID, "limit": limit, "currentID": currentID }
+                , async = true
+                , error = null
+                , success = function (res) {
+                    if (res != "[]") {
+                        
+                        let data = JSON.parse(res);
+                        if (currentID == 0){
+                            dataList = dataList.concat(data);
+                            beginID = data[data.length - 1].ID;
+                            
+
+                            RenderData(data, "lstService")
+
+                            if (data.length < limit) {
+                                $("#btnLoadMore").hide();
+                                isDoneLoadMore = true;
+                            } else {
+                                $("#btnLoadMore").show();
+                            }
+                        }
+                        else
+                        {
+                            if (data && data.length > 0) {
+                                //Case Update: update item in dataList and table body
+                                if ($('#row_customer_' + currentID).length > 0) {
+                                    let index = dataList.findIndex(x => x.ID == data[0].ID)
+                                    if (index != -1) dataList[index] = data[0]
+                                    $('#row_customer_' + currentID).replaceWith(RenderItem(data[0]));
+                                } 
+                                else 
+                                {
+                                    //Case Insert: push new item to dataList and table body
+                                    dataList.push(data[0]);
+                                    $('#lstService').prepend(RenderItem(data[0]));
+                                }
+                            }
+                            else 
+                            {
+                                if ($('#row_customer_' + currentID).length > 0) {
+                                    dataList = dataList.filter(x => x.ID != currentID);
+                                    $('#row_customer_' + currentID).remove();
+                                }
+                                
+                            }
+                        }
+
+                    }
+                    if(res == "[]"){
+                        if(isLoadMore == 1)
+                        {
+                            isDoneLoadMore = true;
+                        }
+                        else 
+                        {
+                            //Case Delete: Remove item out of dataList and table body
+                            if (currentID != 0) {
+                                if ($('#row_customer_' + currentID).length > 0) {
+                                    dataList = dataList.filter(x => x.ID != currentID);
+                                    $('#row_customer_' + currentID).remove();
+                                }
+                            }
+                        }
+                    }
+                }
+                , before = function () {
+                    $("#waitingDiv").show();
+                }
+                , complete = function () {
+                    $("#waitingDiv").hide();
+                }
+            )
+        };
+
+        function RenderItem (item) {
+            let tr = 
+            `
+                <tr id="row_customer_${item.ID}" class="service-row" data-ID="${item.ID}">
+                    <td>${item.ID}</td>
+                    <td>${item.Name}</td>
+                    <td>${item.Service_Code || ""}</td>
+                    <td>${item.UnitCount || "0"}</td>
+                    <td>${item.Note || "Không có"}</td>
+                    <td>${item.Price || "0"}</td>
+                    <td>
+                        <Button type="button" class="btn btn-warning" onclick="OpenModal('${item.ID}')">Sửa</Button>
+                        <Button class="btn btn-danger" onclick="DeleteService(event, '${item.ID}', '${item.Name}')" >Xóa</Button>
+                    </td>
+                </tr>
+            `
+            return tr;
+        }
+
+        function RenderData (data, elementId){
+            let node = $('#' + elementId);
+            let rowData = '';
+            for (let i = 0; i < data.length; i++) {
+                rowData += RenderItem(data[i])
+            }
+
+            node.append(rowData);
+        }
+
+        function DeleteService (e, ID, Name) {
+            e.stopPropagation();
+
+            let isConfirm = confirm("Bạn có muốn xóa dịch vụ " + Name + " không ?");
+
+            if (isConfirm) {
+                AjaxLoad
+                (
+                    url = "/Service/ServiceList/?handler=Delete",
+                    data = { "ID": ID}
+                    , async = true
+                    , error = null
+                    , success = function (res) {
+                        if (res == 1) {
+                            alert("Xoá dịch vụ thành công!");
+                        }
+
+                        LoadList(ID, 0);
+                    }
+                    , before = null
+                    , complete = null
+                )
+            }
+        }
+
+        function OpenModal(id) {
+            currentEditID = id;
+
+            $('#mainModal').modal('show');
+
+            $('#mainModalContent').load('/Service/ServiceDetail?CurrentID=' + id, function (response, status) {
+                if (status === "error") {
+                    alert("Lỗi không thể tải được form!");
+                    $('#mainModal').modal('hide');
+                }
+            });
+        };
+
+        function SearchLocalData() {
+            let keyword = $("#inpSearch").val().toLowerCase().trim();
+
+            if (keyword === "") {
+                // Trả về dữ liệu gốc
+                LoadLstCustomer(0, 0);
+                if (!isDoneLoadMore) $("#btnLoadMore").show();
+            } else {
+                let filtered = dataList.filter(x =>
+                    (x.Name && x.Name.toLowerCase().includes(keyword)) ||
+                    (x.Service_Code && x.Service_Code.toLowerCase().includes(keyword))
+                );
+
+                $("#lstService").empty();
+
+                // Vẽ kết quả lọc
+                RenderData(filtered, "lstService");
+                $("#btnLoadMore").hide();
+            }
+        }
+
+    </script>
+}

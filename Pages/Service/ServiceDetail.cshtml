@@ -1,0 +1,125 @@
+@page
+@model CRUDCustomer.Pages.Service.ServiceDetailModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Service Detail";
+}
+
+<form id="frmCustomerDetail">
+    <div class="modal-header fw-bold text-center" style="font-size: 24px">
+        Thông tin dịch vụ
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+
+    <div class="modal-body mx-2">
+        <div class="d-flex align-items-center mb-3">
+            <label class="form-label mb-0 fw-bold" style="width: 160px;">Name: </label>
+            <div class="d-flex flex-column w-100">
+                <input id="inpName" class="form-control" type="text" />
+            </div>
+        </div>
+        <div class="d-flex align-items-center mb-3">
+            <label class="form-label mb-0 fw-bold" style="width: 160px;">Service Code: </label>
+            <input id="inpServiceCode" class="form-control" type="text" />
+        </div>
+        <div class="d-flex align-items-center mb-3">
+            <label class="form-label mb-0 fw-bold" style="width: 160px;">Unit Count: </label>
+            <input id="inpUnitCount" class="form-control" type="number" />
+        </div>
+        <div class="d-flex align-items-center mb-3">
+            <label class="form-label mb-0 fw-bold" style="width: 160px;">Price: </label>
+            <input id="inpPrice" class="form-control" type="number" />
+        </div>
+        <div class="d-flex align-items-center mb-3">
+            <label class="form-label mb-0 fw-bold" style="width: 160px;">Note: </label>
+            <input id="inpNote" class="form-control" type="text" />
+        </div>
+    </div>
+    <div>
+        <span id="errorMessage" class="text-danger text-end fw-bold mb-2 ms-3"></span>
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+        <button type="button" class="btn btn-success px-4" onclick="ExcuteService()">Lưu</button>
+    </div>
+</form>
+
+<script>
+    {
+        var serviceID = '@Model._CurrentID';
+
+        $(document).ready(function () {
+            LoadDataUpdateService();
+        });
+
+        function LoadDataUpdateService() {
+            if (serviceID != "0") {
+                AjaxLoad(
+                    "/Service/ServiceDetail?handler=LoadDetail",
+                    { "ID": serviceID },
+                    true, null,
+                    function (res) {
+                        if (res != "[]" && res != "0") {
+                            let data = JSON.parse(res);
+                            let item = data[0];
+
+                            $("#inpName").val(item.Name);
+                            $("#inpServiceCode").val(item.Service_Code);
+                            $("#inpUnitCount").val(item.UnitCount);
+                            $("#inpPrice").val(item.Price);
+                            $("#inpNote").val(item.Note);
+                        }
+                    }
+                );
+            }
+        };
+
+        function ExcuteService() {
+            let ServiceCode = $("#inpServiceCode").val().trim();
+            let Name = $("#inpName").val().trim();
+            let UnitCount = $("#inpUnitCount").val().trim();
+            let Price = parseFloat($("#inpPrice").val().trim());
+            let Note = $("#inpNote").val().trim();
+
+            $("#errorMessage").empty();
+
+            AjaxLoad(
+                "/Service/ServiceDetail/?handler=ExcuteData",
+                {
+                    "ID": serviceID,
+                    "ServiceCode": ServiceCode,
+                    "Name": Name,
+                    "UnitCount": UnitCount,
+                    "Note": Note,
+                    "Price": Price
+                },
+                true, null,
+                function (response) {
+                    let data = JSON.parse(response);
+                    let result = data[0].ID || data[0].Result;
+
+                    if(result == -201) {
+                        $("#errorMessage").text("Không được nhập Service Code đã tồn tại!");
+                        return;
+                    }
+                    if (result > 0) {
+                        LoadList(result, 0);
+
+                        $('#mainModal').one('hidden.bs.modal', function () {
+                            if (serviceID == "0") {
+                                alert("Tạo khách hàng thành công!");
+                            } else {
+                                alert("Cập nhật khách hàng thành công!");
+                            }
+                        });
+
+                        $('#mainModal').modal('hide');
+                        return;
+                    }
+                    alert("Mã khách hàng có thể đã tồn tại hoặc có lỗi hệ thống!");
+                }
+            );
+        };
+    }
+</script>
