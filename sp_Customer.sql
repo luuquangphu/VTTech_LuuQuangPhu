@@ -7,12 +7,7 @@ CREATE OR ALTER PROCEDURE [dbo].[YYY_sp_VTT_Customer_LoadList]
     @CurrentID INT = 0
 AS
 BEGIN
-	SELECT
-		C.ID
-		, C.Name
-		, C.Phone1
-		, C.Note
-		, C.Cust_Code
+	SELECT LC.*	
 	INTO #LISTCUSTOMER
 	FROM 
 	(
@@ -28,15 +23,16 @@ BEGIN
 		WHERE @CurrentID = 0 AND State = 1 AND (@beginID = 0 OR ID < @beginID)
 		ORDER BY ID DESC
 	) LC
-	INNER JOIN VTT_Customer C ON C.ID = LC.ID
+	
 
-	SELECT * FROM #LISTCUSTOMER
+	SELECT * 
+	FROM #LISTCUSTOMER LC
+	INNER JOIN VTT_Customer C ON C.ID = LC.ID
 	
 	DROP TABLE #LISTCUSTOMER
 
 END
 GO
-	
 
 CREATE OR ALTER PROCEDURE [dbo].[YYY_sp_VTT_Customer_LoadDetail]
     @ID INT
