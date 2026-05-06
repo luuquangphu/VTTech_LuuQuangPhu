@@ -11,7 +11,7 @@ BEGIN
 	INTO #LISTCUSTOMER
 	FROM 
 	(
-		SELECT TOP (@Limit) ID 
+		SELECT TOP 1 ID 
 		FROM VTT_Customer 
 		WHERE @CurrentID <> 0 AND ID = @CurrentID AND State = 1
 		ORDER BY ID DESC

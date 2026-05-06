@@ -8,8 +8,7 @@
 </button>
 <div class="d-flex align-items-center mb-2">
     <label class="form-label me-1">Tìm kiếm:</label>
-    <input id="inpSearch" class="form-control form-control-sm me-2" style="max-width: 250px" type="text" placeholder="Nhập tên, mã, sđt...">
-    <button class="btn btn-sm btn-primary" type="button" onclick="SearchLocalData()">Tìm kiếm</button>
+    <input id="inpSearch" class="form-control form-control-sm me-2" style="max-width: 250px" type="text" placeholder="Nhập tên, mã, sđt..." oninput="SearchLocalData()">
 </div>
 <div class="table-responsive overflow-auto shadow-sm border rounded mb-3" style="max-height: 500px;">
     <table class="table table-hover mb-0">
@@ -257,9 +256,11 @@
 
             if (keyword === "") {
                 // Trả về dữ liệu gốc
-                LoadLstCustomer(0, 0);
+                
+                RenderData(dataList, "lstCustomer");
                 if (!isDoneLoadMore) $("#btnLoadMore").show();
-            } else {
+            } else 
+            {
                 let filtered = dataList.filter(x =>
                     (x.Name && x.Name.toLowerCase().includes(keyword)) ||
                     (x.Cust_Code && x.Cust_Code.toLowerCase().includes(keyword))

@@ -87,8 +87,6 @@
                 if (response !== "0") {
                     let data = JSON.parse(response);
 
-                    LoadLstCustomer(data[0].ID, 0);
-
                     $('#mainModal').one('hidden.bs.modal', function () {
                         LoadLstCustomer(data[0].ID, 0);
 

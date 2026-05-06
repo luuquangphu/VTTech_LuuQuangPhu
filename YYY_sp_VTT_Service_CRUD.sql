@@ -11,7 +11,7 @@ BEGIN
 	INTO #SERVICELIST
 	FROM 
 	(
-		SELECT TOP (@limit) ID
+		SELECT TOP 1 ID
 		FROM VTT_Service
 		WHERE @currentID <> 0 AND @currentID = ID AND State = 1
 		ORDER BY ID DESC
