@@ -2,8 +2,8 @@ USE DemoCustomerNK_CN
 GO	
 
 CREATE OR ALTER PROCEDURE [dbo].[YYY_sp_VTT_Service_LoadList]
-	@beginID INT = 0
-	, @limit INT = 10
+	@beginID INT = 0,
+	@limit INT = 10
 	, @currentID INT = 0
 AS
 BEGIN
@@ -39,6 +39,9 @@ BEGIN
 END
 GO
 
+EXEC [dbo].YYY_sp_VTT_Service_LoadList @beginID = 5, @Limit = 10, @CurrentID = 0
+GO
+
 CREATE OR ALTER PROCEDURE [dbo].[YYY_sp_VTT_Service_LoadDetail]
 	@ID INT
 AS
@@ -68,6 +71,13 @@ CREATE OR ALTER PROCEDURE [dbo].[YYY_sp_VTT_Service_Insert]
 	, @UnitCount INT
 AS
 BEGIN
+	
+	IF EXISTS (SELECT 1 FROM VTT_Service WHERE Service_Code = @ServiceCode AND State = 1)
+	BEGIN
+        SELECT -201 AS Result;
+        RETURN;
+    END
+	
 	INSERT INTO VTT_Service
 	(
 		Name,
@@ -91,32 +101,40 @@ BEGIN
 
 	DECLARE @NewID INT = SCOPE_IDENTITY();
 
-    SELECT ID
-    FROM VTT_Service
-    WHERE ID = @NewID
-
+    SELECT ID = @NewID 
 END
 GO	
 
 CREATE OR ALTER PROCEDURE [dbo].[YYY_sp_VTT_Service_Update]
-	@ID INT,
-	@Name NVARCHAR(MAX)
-	, @Price FLOAT
-	, @ServiceCode NVARCHAR(200)
-	, @Note NVARCHAR(MAX)
-	, @UnitCount INT
+    @ID INT,
+    @Name NVARCHAR(MAX),
+    @Price FLOAT,
+    @ServiceCode NVARCHAR(200),
+    @Note NVARCHAR(MAX),
+    @UnitCount INT
 AS
 BEGIN
-	UPDATE VTT_Service
-	SET
-		Name = @Name,
-		Service_Code = @ServiceCode
-		, UnitCount = @UnitCount
-		, Note = @Note
-		, Price = @Price
-	WHERE ID = @ID
+    IF EXISTS (
+        SELECT 1 FROM VTT_Service 
+        WHERE Service_Code = @ServiceCode 
+          AND ID <> @ID
+          AND State = 1
+    )
+    BEGIN
+        SELECT -201 AS Result;
+        RETURN;
+    END
 
-	SELECT ID = @ID 
+    UPDATE VTT_Service
+    SET
+        Name = @Name,
+        Service_Code = @ServiceCode,
+        UnitCount = @UnitCount,
+        Note = @Note,
+        Price = @Price
+    WHERE ID = @ID AND State = 1;
+
+    SELECT ID = @ID;
 END
 GO
 
@@ -125,7 +143,9 @@ CREATE OR ALTER PROCEDURE [dbo].[YYY_sp_VTT_Service_Delete]
 AS
 BEGIN
 	UPDATE VTT_Service
-	SET State = 1
+	SET State = 0
 	WHERE ID = @ID
+
+	SELECT RESULT = 1
 END
 GO
