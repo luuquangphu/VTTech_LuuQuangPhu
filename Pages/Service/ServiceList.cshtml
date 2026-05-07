@@ -8,7 +8,7 @@
     Thêm dịch vụ mới
 </button>
 <div class="d-flex align-items-center mb-2">
-    <label class="form-label me-1">Tìm kiếm:</label>
+    <label class="form-label me-2">Tìm kiếm:</label>
     <input id="inpSearch" class="form-control form-control-sm me-2" style="max-width: 250px" type="text" placeholder="Nhập tên, mã, sđt..." oninput="SearchLocalData()">
 </div>
 <div class="table-responsive overflow-auto shadow-sm border rounded mb-3" style="max-height: 500px;">
@@ -246,7 +246,6 @@
             let keyword = $("#inpSearch").val().toLowerCase().trim();
 
             if (keyword === "") {
-                // Trả về dữ liệu gốc
                 RenderData(dataList, "lstService");
                 if (!isDoneLoadMore) $("#btnLoadMore").show();
             } else {
@@ -257,7 +256,6 @@
 
                 $("#lstService").empty();
 
-                // Vẽ kết quả lọc
                 RenderData(filtered, "lstService");
                 $("#btnLoadMore").hide();
             }
