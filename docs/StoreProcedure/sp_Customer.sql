@@ -100,6 +100,8 @@ BEGIN
     UPDATE VTT_Customer
     SET State = 0
     WHERE ID = @ID;
+
+	SELECT RESULT = 1
 END
 GO
 

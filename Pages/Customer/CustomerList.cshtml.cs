@@ -48,15 +48,17 @@ namespace CRUDCustomer.Pages.Customer
         {
             try
             {
-                DataTable data = new DataTable();
-
-                data = await executeDataBase.ExecuteDataTable
+                DataTable dt = await executeDataBase.ExecuteDataTable
                     ("[YYY_sp_VTT_Customer_Delete]",
                         "@ID", SqlDbType.Int, ID
                     );
-                if (data != null && data.Rows.Count > 0)
+                if (dt != null && dt.Rows.Count > 0)
                 {
-                    return Content(DataJson.Datatable(data));
+                    int ressult = Convert.ToInt32(dt.Rows[0]["RESULT"].ToString());
+                    if (ressult == 1)
+                    {
+                        return Content(ressult.ToString());
+                    }
                 }
                 return Content("0");
             }

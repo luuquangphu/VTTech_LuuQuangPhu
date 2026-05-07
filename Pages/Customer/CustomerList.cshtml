@@ -119,6 +119,7 @@
                                 beginID = data[data.length - 1].ID;
 
                                 RenderData(data, "lstCustomer")
+                                UpdateSTT();
 
                                 if (data.length < limit) {
                                     $("#btnLoadMore").hide();
@@ -133,33 +134,30 @@
                                         let index = dataList.findIndex(x => x.ID == data[0].ID);
                                         if (index !== -1) dataList[index] = data[0];
                                         $(`#row_customer_${data[0].ID}`).replaceWith(RenderItem(data[0]));
-                                    } else {
+                                        UpdateSTT();
+                                    } else
+                                    {
                                         //Case Insert: Push new item head of dataList and <tr>
                                         dataList.push(data[0]);
                                         $('#lstCustomer').prepend(RenderItem(data[0]));
-                                    }
-                                } else {
-                                    //Case Delete: Remove item out of dataList and <tr>
-                                    if ($('#row_customer_' + currentId).length > 0) {
-                                        dataList = dataList.filter(x => x.ID != currentId);
-                                        $(`#row_customer_${currentId}`).remove();
+                                        UpdateSTT();
                                     }
                                 }
                             }
                         } else if (result == "[]") {
                             
                             //Load More
-                            if (isLoadMore == 1) {
+                            if (isLoadMore == 1) 
+                            {
                                 isDoneLoadMore = true;
-                            } else {
-                            if (currentId != 0) {
-                                if ($('#row_customer_' + currentId).length > 0) {
+                            }
+                            if (currentId != 0) 
+                            {
+                                if ($('#row_customer_' + currentId).length > 0) 
+                                {
                                     dataList = dataList.filter(x => x.ID != currentId);
                                     $('#row_customer_' + currentId).remove();
-                                }
-                            }
-                                else {
-
+                                    UpdateSTT();
                                 }
                             }
 
@@ -194,7 +192,7 @@
                 try {
                     let tr = `
                             <tr id="row_customer_${item.ID}" class="customer-row" data-ID="${item.ID}">
-                                <td>${item.ID}</td>
+                                        <td class="stt-column"></td>
                                 <td>${item.Cust_Code}</td>
                                 <td>${item.Name || ""}</td>
                                 <td>${item.Phone1 || ""}</td>
@@ -272,6 +270,12 @@
                 RenderData(filtered, "lstCustomer");
                 $("#btnLoadMore").hide();
             }
+        }
+
+        function UpdateSTT() {
+            $('#lstCustomer tr').each(function (index) {
+                $(this).find('td.stt-column').text(index + 1);
+            });
         }
 
     </script>
