@@ -14,7 +14,7 @@ namespace CRUDCustomer.Pages
 
         public IActionResult OnGet()
         {
-            return RedirectToPage("/Customer/CustomerList");
+            return RedirectToPage("/CustomerDashBoard/CustomerDashBoard");
         }
     }
 }

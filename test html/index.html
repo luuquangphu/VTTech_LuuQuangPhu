@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+
+    <title>Glassmorphism Date Picker</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* glass card */
+
+        .glass-date {
+            position: relative;
+            width: 420px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0px 12px 0px 20px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 2px solid #87cefa;
+            transition: 0.3s;
+        }
+
+        .glass-date:hover {
+            transform: translateY(-2px);
+            box-shadow:
+                0 5px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .glass-date input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: black;
+            font-size: 18px;
+            letter-spacing: 0.3px;
+        }
+
+        .glass-date input::placeholder {
+            color: black;
+        }
+
+        /* calendar icon */
+
+        .calendar-icon {
+            font-size: 24px;
+            color: white;
+            cursor: pointer;
+            margin-left: 15px;
+        }
+
+        /* flatpickr custom */
+
+        .flatpickr-calendar {
+            width: 350px;
+            background: linear-gradient(to top, #87cefa , white) !important;
+            backdrop-filter: blur(20px);
+            border-radius: 0 0 20px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 13px;
+            border-radius: 20px;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+        }
+
+        .flatpickr-day.selected {
+            background: #4682b4 !important;
+            color: white !important;
+            border: none !important;
+            border: none !important;
+        }
+
+        .flatpickr-day:hover {
+            background: rgba(255, 255, 255, 0.45);
+        }
+
+        .flatpickr-innerContainer {
+            justify-content: center;
+        }
+
+        .flatpickr-months {
+            border-radius: 20px 20px 0 0 !important;
+            overflow: hidden;
+        }
+
+        .flatpickr-months,
+        .flatpickr-weekdays,
+        .flatpickr-weekday {
+            background: transparent !important;
+            color: #1a1a2e !important;
+        }
+
+        .flatpickr-months .flatpickr-month {
+            background: transparent !important;
+            color: #1a1a2e !important;
+            fill: #1a1a2e !important;
+        }
+
+        .flatpickr-current-month,
+        .flatpickr-current-month input.cur-year {
+            color: #1a1a2e !important;
+        }
+
+        .flatpickr-months .flatpickr-prev-month,
+        .flatpickr-months .flatpickr-next-month {
+            fill: #1a1a2e !important;
+            color: #1a1a2e !important;
+        }
+
+        /* phần dưới (nền xanh) - chữ trắng */
+        .flatpickr-day {
+            color: black !important;
+        }
+
+        .flatpickr-day:hover {
+            background: rgba(255, 255, 255, 0.4) !important;
+            color: #1a1a2e !important;
+        }
+
+        .flatpickr-day.flatpickr-disabled,
+        .flatpickr-day.prevMonthDay,
+        .flatpickr-day.nextMonthDay {
+            color: rgba(255, 255, 255, 0.35) !important;
+        }
+
+        .flatpickr-monthDropdown-months{
+            background-color: white !important;
+        }
+
+        .flatpickr-current-month .flatpickr-monthDropdown-months .flatpickr-monthDropdown-month {
+            background-color: white !important;
+            outline: none;
+            padding: 0;
+        }
+
+        .flatpickr-day.flatpickr-disabled, .flatpickr-day.prevMonthDay, .flatpickr-day.nextMonthDay {
+            color: rgba(7, 7, 7, 0.35) !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="glass-date">
+        <input type="text" id="datePicker" placeholder="Chọn ngày...">
+
+        <div class="calendar-icon">📅</div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <script>
+        flatpickr("#datePicker", {
+            dateFormat: "d/m/Y",
+            animate: true
+        });
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,660 @@
+@page
+@model CRUDCustomer.Pages.CustomerDashBoard.CustomerDashBoardModel
+@{
+    ViewData["Title"] = "Customer DashBoard";
+}
+
+<style>
+    .stat-card {
+        width: 220px;
+        min-height: 110px;
+        border-radius: 14px;
+        border: 1px solid #c4b5fd;
+        background: linear-gradient(145deg, #faf5ff 0%, #ede9fe 100%);
+        transition: transform 0.25s, box-shadow 0.25s;
+    }
+
+    .stat-card .card-title {
+        font-size: 16px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 6px;
+        color: #7c3aed;
+    }
+
+    .stat-card .card-value {
+        font-size: 26px;
+        font-weight: 700;
+        color: #4c1d95;
+    }
+
+    .glass-date {
+        position: relative;
+        width: 350px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0px 12px 0px 18px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        border: 2px solid #87cefa;
+        box-shadow: 0 2px 10px rgba(135, 206, 250, 0.25);
+        transition: 0.3s;
+    }
+
+    .glass-date:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 14px rgba(135, 206, 250, 0.35);
+    }
+
+    .glass-date input {
+        width: 100%;
+        background: transparent;
+        border: none;
+        outline: none;
+        color: #1e293b;
+        font-size: 14px;
+        font-family: 'Inter', sans-serif;
+        letter-spacing: 0.3px;
+    }
+
+    .glass-date input::placeholder {
+        color: #94a3b8;
+    }
+
+    .calendar-icon {
+        font-size: 18px;
+        cursor: pointer;
+        margin-left: 10px;
+        flex-shrink: 0;
+    }
+
+    .btn-action {
+        height: 40px;
+        padding: 0 18px;
+        border-radius: 999px;
+        font-size: 13.5px;
+        font-weight: 600;
+        background: transparent;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+    }
+
+    .btn-appt {
+        border: 2px solid #6366f1;
+        color: #6366f1;
+    }
+
+    .btn-appt:hover {
+        background: #6366f1;
+        color: #fff;
+        box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-service {
+        border: 2px solid #0ea5e9;
+        color: #0ea5e9;
+    }
+
+    .btn-service:hover {
+        background: #0ea5e9;
+        color: #fff;
+        box-shadow: 0 4px 14px rgba(14, 165, 233, 0.3);
+    }
+
+    .btn-payment {
+        border: 2px solid #10b981;
+        color: #10b981;
+    }
+
+    .btn-payment:hover {
+        background: #10b981;
+        color: #fff;
+        box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+    }
+
+    .item-count-badge {
+        height: 40px;
+        padding: 0 16px;
+        border-radius: 999px;
+        background: #f1f5f9;
+        border: 1.5px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13.5px;
+        font-weight: 500;
+        color: #475569;
+        white-space: nowrap;
+    }
+
+    .item-count-badge .count-num {
+        font-weight: 700;
+        color: #0ea5e9;
+    }
+
+    .btn-export {
+        height: 40px;
+        padding: 0 18px;
+        border-radius: 999px;
+        font-size: 13.5px;
+        font-weight: 600;
+        font-family: 'Inter', sans-serif;
+        background: green;
+        border: none;
+        color: #fff;
+        transition: all 0.25s;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        white-space: nowrap;
+    }
+
+    .btn-export:hover {
+        color: #fff;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+    }
+
+    .toolbar-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin: 50px 0px 15px 0px;
+        padding-left: 30px;
+        padding-right: 30px;
+    }
+
+    .toolbar-right {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .customer-table-wrapper {
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.07);
+        border: 1px solid #e2e8f0;
+    }
+
+    .customer-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+    }
+
+    .customer-table thead tr {
+        background: linear-gradient(135deg, #1e293b, #334155);
+        color: #f1f5f9;
+    }
+
+    .customer-table thead th {
+        padding: 13px 18px;
+        font-weight: 600;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .customer-table tbody tr {
+        transition: background 0.18s;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .customer-table tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    .customer-table tbody tr:nth-child(even) {
+        background: #f8fafc;
+    }
+
+    .customer-table tbody tr:hover {
+        background: #eff6ff;
+    }
+
+    .customer-table tbody td {
+        padding: 12px 18px;
+        color: #334155;
+        border: 1px solid #e2e8f0;
+        vertical-align: middle;
+    }
+
+    .col-id {
+        width: 80px;
+        text-align: center;
+        font-weight: 600;
+        color: white;
+    }
+
+    .cust-avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #6366f1, #8b5cf6);
+        color: white;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 13px;
+        flex-shrink: 0;
+        margin-right: 10px;
+    }
+
+    .cust-name {
+        font-weight: 600;
+        color: #1e293b;
+        font-size: 14px;
+    }
+
+    .cust-sub {
+        font-size: 12px;
+        color: #94a3b8;
+    }
+
+    .flatpickr-calendar {
+        width: 310px !important;
+        background: linear-gradient(to top, #87cefa, white) !important;
+        backdrop-filter: blur(20px);
+        border-radius: 20px !important;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        margin-top: 8px;
+    }
+
+    .flatpickr-day.selected,
+    .flatpickr-day.startRange,
+    .flatpickr-day.endRange {
+        background: #4682b4 !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 50% !important;
+    }
+
+    .flatpickr-day.inRange {
+        background: rgba(70, 130, 180, 0.25) !important;
+        color: #1a1a2e !important;
+        border-radius: 0 !important;
+        box-shadow: -5px 0 0 rgba(70, 130, 180, 0.25), 5px 0 0 rgba(70, 130, 180, 0.25) !important;
+        border: none !important;
+    }
+
+    .flatpickr-day.startRange {
+        border-radius: 50% 0 0 50% !important;
+    }
+
+    .flatpickr-day.endRange {
+        border-radius: 0 50% 50% 0 !important;
+    }
+
+    .flatpickr-day.startRange.endRange {
+        border-radius: 50% !important;
+    }
+
+    .flatpickr-day:hover {
+        background: #4682b4;
+    }
+
+    .flatpickr-innerContainer { justify-content: center; }
+
+    .flatpickr-months { border-radius: 20px 20px 0 0 !important; overflow: hidden; }
+
+    .flatpickr-months,
+    .flatpickr-weekdays,
+    .flatpickr-weekday {
+        background: transparent !important;
+        color: #1a1a2e !important;
+    }
+
+    .flatpickr-months .flatpickr-month {
+        background: transparent !important;
+        color: #1a1a2e !important;
+        fill: #1a1a2e !important;
+    }
+
+    .flatpickr-current-month,
+    .flatpickr-current-month input.cur-year { color: #1a1a2e !important; }
+
+    .flatpickr-months .flatpickr-prev-month,
+    .flatpickr-months .flatpickr-next-month { fill: #1a1a2e !important; color: #1a1a2e !important; }
+
+    .flatpickr-day { color: black !important; }
+
+    .flatpickr-day:hover { background: rgba(255,255,255,0.4) !important; color: #1a1a2e !important; }
+
+    .flatpickr-day.flatpickr-disabled,
+    .flatpickr-day.prevMonthDay,
+    .flatpickr-day.nextMonthDay { color: rgba(7,7,7,0.35) !important; }
+
+    .flatpickr-monthDropdown-months { background-color: white !important; }
+
+    .flatpickr-current-month .flatpickr-monthDropdown-months .flatpickr-monthDropdown-month {
+        background-color: white !important;
+        outline: none;
+        padding: 0;
+    }
+</style>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/light.css">
+
+<div class="dashboard-wrapper">
+
+    <div class="d-flex flex-row-reverse gap-3" style="margin: 10px 120px 24px 0px">
+
+        <div class="stat-card card position-relative p-3">
+            <div class="card-title">Tổng khách hàng</div>
+            <div class="card-value">7,000</div>
+        </div>
+
+        <div class="stat-card card position-relative p-3">
+            <div class="card-title">Doanh số</div>
+            <div class="card-value">7,000</div>
+        </div>
+
+        <div class="stat-card card position-relative p-3">
+            <div class="card-title">Doanh thu</div>
+            <div class="card-value">7,000</div>
+        </div>
+
+    </div>
+
+    <div class="toolbar-row">
+       
+        <div class="glass-date">
+            <input type="text" id="datePicker" placeholder="Chọn ngày...">
+            <span class="calendar-icon">📅</span>
+        </div>
+
+        <button id="btnLichHen" class="btn btn-action btn-appt">
+            Lịch hẹn
+        </button>
+        <button id="btnDichVu" class="btn btn-action btn-service">
+            Dịch vụ
+        </button>
+        <button id="btnThanhToan" class="btn btn-action btn-payment">
+            Thanh toán
+        </button>
+
+        <div class="toolbar-right">
+            <div class="item-count-badge">
+                Số lượng: <span class="count-num" id="itemCount">12</span>
+            </div>
+            <button id="btnExportExcel" class="btn-export">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 15V3m0 12l-4-4m4 4l4-4"/>
+                    <path d="M2 17v2a2 2 0 002 2h16a2 2 0 002-2v-2"/>
+                </svg>
+                Xuất Excel
+            </button>
+        </div>
+
+    </div>
+
+    <div class="customer-table-wrapper">
+        <table class="customer-table" id="customerTable">
+            <thead>
+                <tr>
+                    <th class="col-id">ID</th>
+                    <th>Khách hàng</th>
+                    <th>Liên hệ</th>
+                </tr>
+            </thead>
+            <tbody id="lstCustomer"></tbody>
+        </table>
+    </div>
+
+    <div id="waitingDiv" class="text-center my-3" style="display: none">
+        <div class="spinner-border text-primary" role="status"></div>
+    </div>
+    <div class="text-center mt-3 mb-4">
+        <button id="btnLoadMore" class="btn btn-secondary px-5" style="display:none;" onclick="LoadList(0, 1)">
+            Xem thêm
+        </button>
+    </div>
+
+</div>
+
+<!-- flatpickr JS -->
+@Html.AntiForgeryToken()
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/vn.js"></script>
+    <script>
+        let beginID       = 0;
+        let dataList      = [];
+        let limit         = 5;
+        let isDoneLoadMore = false;
+        let currentType   = 0;          // 0=All | 1=Date | 2=LịchHẹn | 3=DịchVụ | 4=ThanhToán
+        let fpInstance    = null;       
+
+        $(document).ready(function () {
+            fpInstance = flatpickr("#datePicker", {
+                mode: "range",
+                dateFormat: "d/m/Y",
+                animate: true,
+                locale: "vn",
+                onClose: function (selectedDates, dateStr, instance) {
+                    if (selectedDates.length === 2) {
+                        var fmt = function (d) {
+                            var dd   = String(d.getDate()).padStart(2, '0');
+                            var mm   = String(d.getMonth() + 1).padStart(2, '0');
+                            var yyyy = d.getFullYear();
+                            return dd + '/' + mm + '/' + yyyy;
+                        };
+                        document.getElementById('datePicker').value =
+                            fmt(selectedDates[0]) + ' - ' + fmt(selectedDates[1]);
+                        LoadList(0, 0);
+                    } else if (selectedDates.length === 1) {
+                        instance.open();
+                    }
+                }
+            });
+
+            // Kết nối nút filter
+            document.getElementById('btnLichHen').addEventListener('click', function () {
+                setActiveType(2);
+            });
+            document.getElementById('btnDichVu').addEventListener('click', function () {
+                setActiveType(3);
+            });
+            document.getElementById('btnThanhToan').addEventListener('click', function () {
+                setActiveType(4);
+            });
+            document.getElementById('btnExportExcel').addEventListener('click', function () {
+                alert('Chức năng Xuất Excel đang phát triển!');
+            });
+            LoadList(0, 0);
+        });
+
+
+        function getPickedDates() {
+            if (!fpInstance) return { startDate: null, endDate: null };
+            var dates = fpInstance.selectedDates;
+            return {
+                startDate: dates.length >= 1 ? formatDateISO(dates[0]) : null,
+                endDate:   dates.length >= 2 ? formatDateISO(dates[1]) : null
+            };
+        }
+
+        function formatDateISO(d) {
+            var dd   = String(d.getDate()).padStart(2, '0');
+            var mm   = String(d.getMonth() + 1).padStart(2, '0');
+            var yyyy = d.getFullYear();
+            return yyyy + '-' + mm + '-' + dd;
+        }
+
+        function setActiveType(type) {
+            currentType = type;
+            LoadList(0, 0);
+        }
+
+        function AjaxLoad(url, data, async, error, success, before, complete) {
+            $.ajax({
+                type: "POST",
+                url: url
+                , data: data
+                , async: async
+                , beforeSend: function (xhr) {
+                    xhr.setRequestHeader("RequestVerificationToken",
+                        $('input:hidden[name="__RequestVerificationToken"]').val());
+                    if (before) before();
+                }
+                , success: function (res) {
+                    if (success) success(res);
+                }
+                , error: function (err) {
+                    if (error) error(err);
+                    else console.error("Ajax Error:", err);
+                }
+                , complete: function () {
+                    if (complete) complete();
+                }
+            });
+        };
+
+        function LoadList(currentID = 0, isLoadMore = 0) {
+            if (currentID == 0 && isLoadMore == 0) {
+                dataList      = [];
+                beginID       = 0;
+                isDoneLoadMore = false;
+                $("#lstCustomer").empty();
+            }
+
+            var dates = getPickedDates();
+
+            var type = currentType;
+            if (type == 0 && (dates.startDate || dates.endDate)) type = 1;
+
+            AjaxLoad(
+                url    = "/CustomerDashBoard/CustomerDashBoard/?handler=LoadList",
+                data   = {
+                    "BeginID":   beginID,
+                    "Limit":     limit,
+                    "Type":      type,
+                    "StartDate": dates.startDate,
+                    "EndDate":   dates.endDate
+                },
+                async  = true,
+                error  = null,
+                success = function (res) {
+                    if (res == "-100") {
+                        alert("Ngày kết thúc không được nhỏ hơn ngày bắt đầu!");
+                        return;
+                    }
+
+                    if (res != "[]") {
+                        let data = JSON.parse(res);
+
+                        if (currentID == 0) {
+                            dataList = dataList.concat(data);
+                            beginID  = data[data.length - 1].ID;
+
+                            RenderData(data, "lstCustomer", dataList.length - data.length);
+                            ReIndexSTT();
+
+                            $("#itemCount").text(dataList.length);
+
+                            if (data.length < limit) {
+                                $("#btnLoadMore").hide();
+                                isDoneLoadMore = true;
+                            } else {
+                                $("#btnLoadMore").show();
+                            }
+                        } else {
+                            if (data && data.length > 0) {
+                                if ($('#row_customer_' + currentID).length > 0) {
+                                    let index = dataList.findIndex(x => x.ID == data[0].ID);
+                                    if (index != -1) dataList[index] = data[0];
+                                    $('#row_customer_' + currentID).replaceWith(RenderItem(data[0]));
+                                } else {
+                                    dataList.push(data[0]);
+                                    $('#lstCustomer').prepend(RenderItem(data[0]));
+                                }
+                                ReIndexSTT();
+                            }
+
+                            $("#itemCount").text(dataList.length);
+                        }
+
+                    }
+
+                    if (res == "[]") {
+                        if (isLoadMore == 1) {
+                            isDoneLoadMore = true;
+                            $("#btnLoadMore").hide();
+                        } else {
+                            if (currentID != 0) {
+                                if ($('#row_customer_' + currentID).length > 0) {
+                                    dataList = dataList.filter(x => x.ID != currentID);
+                                    $('#row_customer_' + currentID).remove();
+                                    ReIndexSTT();
+                                    $("#itemCount").text(dataList.length);
+                                }
+                            }
+                        }
+                    }
+                },
+                before = function () {
+                    $("#waitingDiv").show();
+                    $("#btnLoadMore").prop('disabled', true);
+                },
+                complete = function () {
+                    $("#waitingDiv").hide();
+                    $("#btnLoadMore").prop('disabled', false);
+                }
+            );
+        };
+
+        function RenderItem(item, stt = '') {
+            var nameParts = (item.FullName || item.Name || '?').trim().split(' ');
+            var initials  = nameParts.length >= 2
+                ? (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase()
+                : nameParts[0].substring(0, 2).toUpperCase();
+
+            let tr =
+            `
+                <tr id="row_customer_${item.ID}" data-ID="${item.ID}">
+                    <td class="col-id stt-cell">${stt}</td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <div class="cust-avatar">${initials}</div>
+                            <div>
+                                <div class="cust-name">${item.Name || ''}</div>
+                                <div class="cust-sub">${item.Note || ''}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${item.Phone1 || ''}</td>
+                </tr>
+            `;
+            return tr;
+        }
+
+        function RenderData(data, elementId, offset = 0) {
+            let node    = $('#' + elementId);
+            let rowData = '';
+            for (let i = 0; i < data.length; i++) {
+                rowData += RenderItem(data[i], offset + i + 1);
+            }
+            node.append(rowData);
+        }
+
+        function ReIndexSTT() {
+            $('#lstCustomer tr').each(function (index) {
+                $(this).find('.stt-cell').text(index + 1);
+            });
+        }
+
+    </script>
+}

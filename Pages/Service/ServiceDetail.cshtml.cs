@@ -1,5 +1,4 @@
 ﻿using CRUDCustomer.Models;
-using CRUDCustomer.Models.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Data;
