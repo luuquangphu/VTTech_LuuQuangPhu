@@ -12,124 +12,111 @@ GO
 -- + -100: EndDate < StartDate
 
 CREATE OR ALTER PROCEDURE [dbo].[YYY_sp_VTT_CustomerDashBoard_LoadList]
-	@StartDate DATETIME = NULL,
+    @StartDate DATETIME = NULL,
 	@EndDate DATETIME = NULL
 	, @Type INT = 0
 	, @Limit INT = 10
 	, @BeginID INT = 0
 AS
 BEGIN
-	IF (@StartDate IS NOT NULL AND @EndDate IS NOT NULL AND @EndDate < @StartDate)
-	BEGIN
-		SELECT RESULT = -100
-		RETURN;
+    IF (@StartDate IS NOT NULL AND @EndDate IS NOT NULL AND @EndDate < @StartDate)
+    BEGIN 
+		SELECT RESULT = -100; 
+		RETURN; 
 	END
 
-	SELECT CDB.*
-	INTO #CUSTOMERDASHBOARD
-	FROM
-	(
-		--CASE 1 LOAD CUSTOMER LIST **NO CONDITION
-		SELECT TOP (@Limit) C.ID
-		FROM VTT_Customer C
-		WHERE 
-			@Type = 0
-			AND C.State = 1
-			AND (@beginID = 0 OR ID < @beginID)
-			AND @StartDate IS NULL
+    CREATE TABLE #CUSTOMERDB (ID INT);
+
+    IF @Type = 0
+        INSERT INTO #CUSTOMERDB
+        SELECT TOP (@Limit) ID 
+		FROM VTT_Customer
+        WHERE 
+			State = 1 
+			AND (@BeginID = 0 OR ID < @BeginID)
+			AND @StartDate IS NULL 
 			AND @EndDate IS NULL
-		ORDER BY C.Created DESC
+        ORDER BY Created DESC;
 
-		UNION ALL
+    ELSE IF @Type = 1
+        INSERT INTO #CUSTOMERDB
+        SELECT TOP (@Limit) ID 
+		FROM VTT_Customer
+        WHERE 
+			State = 1 
+			AND (@BeginID = 0 OR ID < @BeginID)
+			AND Created >= @StartDate 
+			AND Created <= @EndDate
+        ORDER BY Created DESC;
 
-		--CASE 2 LOAD CUSTOMER LIST **HAS ENDDATE AND STARTDATE
-		SELECT TOP (@Limit) C.ID
+    ELSE IF @Type = 2
+        INSERT INTO #CUSTOMERDB
+        SELECT TOP (@Limit) C.ID 
 		FROM VTT_Customer C
-		WHERE 
-			@Type = 1
-			AND C.State = 1 
-			AND (@beginID = 0 OR ID < @beginID)
-			AND C.Created >= @StartDate
-			AND C.Created <= @EndDate
-		ORDER BY C.Created DESC
-
-		UNION ALL
-
-		--CASE 3 LOAD CUSTOMER LIST **HAS SCHEDULE
-		SELECT TOP (@Limit) C.ID
-		FROM VTT_Customer C
-		WHERE 
-			@Type = 2
-			AND C.State = 1
-			AND (@beginID = 0 OR ID < @beginID)
+        WHERE 
+			C.State = 1 
+			AND (@BeginID = 0 OR C.ID < @BeginID)
 			AND (@StartDate IS NULL OR C.Created >= @StartDate)
 			AND (@EndDate IS NULL OR C.Created <= @EndDate)
-			AND EXISTS
-			(
-				SELECT 1
-				FROM VTT_Schedule S
-				WHERE 
-					S.State = 1
-					AND S.Customer_ID = C.ID
-			)
-		ORDER BY C.Created DESC
+			AND EXISTS (
+						SELECT 1 
+						FROM VTT_Schedule S
+						WHERE 
+							S.State = 1 
+							AND S.Customer_ID = C.ID
+						)
+        ORDER BY C.Created DESC;
 
-		UNION ALL
-
-		--CASE 3 LOAD CUSTOMER LIST **HAS CUSTOMER_TAB
-		SELECT TOP (@Limit) C.ID
+    ELSE IF @Type = 3
+        INSERT INTO #CUSTOMERDB
+        SELECT TOP (@Limit) C.ID 
 		FROM VTT_Customer C
-		WHERE 
-			@Type = 3
-			AND C.State = 1
-			AND (@beginID = 0 OR ID < @beginID)
+        WHERE 
+		C.State = 1 
+			AND (@BeginID = 0 OR C.ID < @BeginID)
 			AND (@StartDate IS NULL OR C.Created >= @StartDate)
 			AND (@EndDate IS NULL OR C.Created <= @EndDate)
-			AND EXISTS
-			(
-				SELECT 1
-				FROM VTT_Customer_Tab CT
-				WHERE 
-					CT.IsChoose = 1
-					AND CT.State = 1
-					AND CT.Customer_ID = C.ID
-			)
-		ORDER BY C.Created DESC
+			AND EXISTS (
+						SELECT 1 
+						FROM VTT_Customer_Tab CT
+						WHERE 
+							CT.IsChoose = 1 
+							AND CT.State = 1 
+							AND CT.Customer_ID = C.ID
+						)
+        ORDER BY C.Created DESC;
 
-		UNION ALL
-
-		--CASE 3 LOAD CUSTOMER LIST **HAS CUSTOMER_PAYMENT
-		SELECT TOP (@Limit) C.ID
+    ELSE IF @Type = 4
+        INSERT INTO #CUSTOMERDB
+        SELECT TOP (@Limit) C.ID 
 		FROM VTT_Customer C
-		WHERE 
-			@Type = 4
-			AND C.State = 1
-			AND (@beginID = 0 OR ID < @beginID)
+        WHERE 
+			C.State = 1 
+			AND (@BeginID = 0 OR C.ID < @BeginID)
 			AND (@StartDate IS NULL OR C.Created >= @StartDate)
 			AND (@EndDate IS NULL OR C.Created <= @EndDate)
-			AND EXISTS
-			(
-				SELECT 1
-				FROM VTT_Customer_Payment CP
-				WHERE 
-					CP.State = 1
-					AND CP.Customer_ID = C.ID
-			)
-		ORDER BY C.Created DESC
-	) CDB
+			AND EXISTS (
+						SELECT 1 
+						FROM VTT_Customer_Payment CP
+						WHERE 
+							CP.State = 1 
+							AND CP.Customer_ID = C.ID
+						)
+        ORDER BY C.Created DESC;
 
-	SELECT 
-		C.ID,
-		Name
-		, Phone1
-		,Note
-		, Created
-	FROM VTT_Customer C
-	INNER JOIN #CUSTOMERDASHBOARD CDB ON CDB.ID = C.ID
 
-	DROP TABLE #CUSTOMERDASHBOARD
+    SELECT 
+		C.ID, 
+		C.Name
+		,Phone1 = ISNULL(C.Phone1, '')
+		,Note = ISNULL(C.Note, '')
+    FROM VTT_Customer C
+    INNER JOIN #CUSTOMERDB CDB ON CDB.ID = C.ID
+    ORDER BY C.Created DESC;
+
+    DROP TABLE #CUSTOMERDB;
 END
-GO
+GO	
 
 CREATE OR ALTER PROCEDURE [dbo].[YYY_sp_VTT_CustomerDashBoard_LoadSummary]
 	@StartDate DATETIME = NULL,
