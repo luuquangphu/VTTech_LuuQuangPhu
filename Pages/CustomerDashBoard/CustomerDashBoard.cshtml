@@ -73,6 +73,30 @@
         flex-shrink: 0;
     }
 
+    .btn-clear-date {
+        display: none;
+        align-items: center;
+        justify-content: center;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: #ef4444;
+        color: #fff;
+        border: none;
+        font-size: 14px;
+        font-weight: 700;
+        line-height: 1;
+        cursor: pointer;
+        margin-left: 6px;
+        flex-shrink: 0;
+        transition: background 0.2s, transform 0.15s;
+    }
+
+    .btn-clear-date:hover {
+        background: #b91c1c;
+        transform: scale(1.12);
+    }
+
     .btn-action {
         height: 40px;
         padding: 0 18px;
@@ -385,9 +409,14 @@
 
     <div class="toolbar-row">
        
-        <div class="glass-date">
-            <input type="text" id="datePicker" placeholder="Chọn ngày...">
-            <span class="calendar-icon">📅</span>
+        <div class="d-flex align-items-center gap-2">
+            <div class="glass-date">
+                <input type="text" id="datePicker" placeholder="Chọn ngày..." readonly>
+                <span class="calendar-icon" onclick="fpInstance && fpInstance.open()">📅</span>
+            </div>
+            <button id="btnClearDate" class="btn-clear-date" title="Hủy lọc ngày" onclick="ClearDate()">
+                &times;
+            </button>
         </div>
 
         <button id="btnLichHen" class="btn btn-action btn-appt">
@@ -470,6 +499,8 @@
                         };
                         document.getElementById('datePicker').value =
                             fmt(selectedDates[0]) + ' - ' + fmt(selectedDates[1]);
+                        // Hiện nút X sau khi chọn đủ 2 ngày
+                        document.getElementById('btnClearDate').style.display = 'flex';
                         LoadList(0, 0);
                         LoadSummary();
                     } else if (selectedDates.length === 1) {
@@ -477,8 +508,7 @@
                     }
                 }
             });
-
-            // Kết nối nút filter
+      
             document.getElementById('btnLichHen').addEventListener('click', function () {
                 setActiveType(2);
             });
@@ -510,6 +540,15 @@
             var mm   = String(d.getMonth() + 1).padStart(2, '0');
             var yyyy = d.getFullYear();
             return yyyy + '-' + mm + '-' + dd;
+        }
+
+        function ClearDate() {
+            if (!fpInstance) return;
+            fpInstance.clear();                                          
+            document.getElementById('datePicker').value = '';           
+            document.getElementById('btnClearDate').style.display = 'none'; 
+            LoadList(0, 0);   
+            LoadSummary();
         }
 
         function setActiveType(type) {
