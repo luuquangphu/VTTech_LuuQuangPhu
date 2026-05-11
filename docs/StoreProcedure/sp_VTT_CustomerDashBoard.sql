@@ -27,17 +27,6 @@ BEGIN
 
     CREATE TABLE #CUSTOMERDB (ID INT);
 
-    IF @Type = 0
-        INSERT INTO #CUSTOMERDB
-        SELECT TOP (@Limit) ID 
-		FROM VTT_Customer
-        WHERE 
-			State = 1 
-			AND (@BeginID = 0 OR ID < @BeginID)
-			AND @StartDate IS NULL 
-			AND @EndDate IS NULL
-        ORDER BY Created DESC;
-
     ELSE IF @Type = 1
         INSERT INTO #CUSTOMERDB
         SELECT TOP (@Limit) ID 
@@ -47,7 +36,7 @@ BEGIN
 			AND (@BeginID = 0 OR ID < @BeginID)
 			AND Created >= @StartDate 
 			AND Created <= @EndDate
-        ORDER BY Created DESC;
+        ORDER BY ID DESC;
 
     ELSE IF @Type = 2
         INSERT INTO #CUSTOMERDB
@@ -65,7 +54,7 @@ BEGIN
 							S.State = 1 
 							AND S.Customer_ID = C.ID
 						)
-        ORDER BY C.Created DESC;
+        ORDER BY C.ID DESC;
 
     ELSE IF @Type = 3
         INSERT INTO #CUSTOMERDB
@@ -84,7 +73,7 @@ BEGIN
 							AND CT.State = 1 
 							AND CT.Customer_ID = C.ID
 						)
-        ORDER BY C.Created DESC;
+        ORDER BY C.ID DESC;
 
     ELSE IF @Type = 4
         INSERT INTO #CUSTOMERDB
@@ -102,8 +91,7 @@ BEGIN
 							CP.State = 1 
 							AND CP.Customer_ID = C.ID
 						)
-        ORDER BY C.Created DESC;
-
+        ORDER BY C.ID DESC;
 
     SELECT 
 		C.ID, 
@@ -112,7 +100,7 @@ BEGIN
 		,Note = ISNULL(C.Note, '')
     FROM VTT_Customer C
     INNER JOIN #CUSTOMERDB CDB ON CDB.ID = C.ID
-    ORDER BY C.Created DESC;
+    ORDER BY C.ID DESC;
 
     DROP TABLE #CUSTOMERDB;
 END
@@ -164,16 +152,16 @@ END
 GO
 
 EXEC [dbo].[YYY_sp_VTT_CustomerDashBoard_LoadSummary] 
-	@StartDate = '2025-07-20', 
-	@EndDate = '2025-08-01'
+	@StartDate = '2025-07-01T00:00:00', 
+	@EndDate = '2025-07-31T23:59:59'
 GO
 
 -- 1. Case 1 không có enddate và start date và type = 0, beginID = 0
 EXEC [dbo].[YYY_sp_VTT_CustomerDashBoard_LoadList] 
-	@StartDate = NULL, 
-	@EndDate = NULL, 
-	@Type = 0, 
-	@BeginID = 0
+	@StartDate = '2025-07-01T00:00:00', 
+	@EndDate = '2025-07-31T23:59:59', 
+	@Type = 1, 
+	@BeginID = 11095
 GO
 
 -- 2. (LOADMORE) Case 1 không có enddate và start date và type = 0, beginID = 11225
@@ -204,10 +192,10 @@ GO
 
 -- 6. Case 2 có enddate = '2022-12-01' và start date = '2025-12-01' và type = 1, beginID = 194
 EXEC [dbo].[YYY_sp_VTT_CustomerDashBoard_LoadList] 
-	@StartDate = '2022-12-01', 
-	@EndDate = '2022-12-30', 
+	@StartDate = '2025-07-01T00:00:00', 
+	@EndDate = '2025-07-31T23:59:59', 
 	@Type = 1, 
-	@BeginID = 194
+	@BeginID = 11095
 GO
 
 -- 7. Case 3 có enddate = '2022-12-01' và start date = '2025-12-01' và type = 2, beginID = 0
