@@ -5,11 +5,6 @@
 }
 
 <style>
-    .card-containner {
-        margin: 10px 0px 24px 120px;
-        max-width: 80%;
-    }
-
     @@media (max-width: 480px){
         .card-containner {
             margin: 10px 0px 24px 0px;
@@ -28,31 +23,6 @@
             padding: 0px !important;
         }
     } 
-
-    .stat-card {
-        width: fit-content;
-        min-width: 180px;
-        min-height: 110px;
-        border-radius: 14px;
-        border: 1px solid #c4b5fd;
-        background: linear-gradient(145deg, #faf5ff 0%, #ede9fe 100%);
-        transition: transform 0.25s, box-shadow 0.25s;
-    }
-
-    .stat-card .card-title {
-        font-size: 16px;
-        font-weight: 800;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-bottom: 6px;
-        color: #7c3aed;
-    }
-
-    .stat-card .card-value {
-        font-size: 26px;
-        font-weight: 700;
-        color: #4c1d95;
-    }
 
     .glass-date {
         position: relative;
@@ -98,116 +68,6 @@
         flex-shrink: 0;
     }
 
-    .btn-clear-date {
-        display: none;
-        align-items: center;
-        justify-content: center;
-        width: 26px;
-        height: 26px;
-        border-radius: 50%;
-        background: #ef4444;
-        color: #fff;
-        border: none;
-        font-size: 14px;
-        font-weight: 700;
-        line-height: 1;
-        cursor: pointer;
-        margin-left: 6px;
-        flex-shrink: 0;
-        transition: background 0.2s, transform 0.15s;
-    }
-
-    .btn-clear-date:hover {
-        background: #b91c1c;
-        transform: scale(1.12);
-    }
-
-    .btn-action {
-        height: 40px;
-        padding: 0 18px;
-        border-radius: 999px;
-        font-size: 13.5px;
-        font-weight: 600;
-        background: transparent;
-        transition: all 0.2s ease;
-        white-space: nowrap;
-    }
-
-    .btn-appt {
-        border: 2px solid #6366f1;
-        color: #6366f1;
-    }
-
-    .btn-appt:hover {
-        background: #6366f1;
-        color: #fff;
-        box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3);
-    }
-
-    .btn-service {
-        border: 2px solid #0ea5e9;
-        color: #0ea5e9;
-    }
-
-    .btn-service:hover {
-        background: #0ea5e9;
-        color: #fff;
-        box-shadow: 0 4px 14px rgba(14, 165, 233, 0.3);
-    }
-
-    .btn-payment {
-        border: 2px solid #10b981;
-        color: #10b981;
-    }
-
-    .btn-payment:hover {
-        background: #10b981;
-        color: #fff;
-        box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
-    }
-
-    .item-count-badge {
-        height: 40px;
-        padding: 0 16px;
-        border-radius: 999px;
-        background: #f1f5f9;
-        border: 1.5px solid #e2e8f0;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 13.5px;
-        font-weight: 500;
-        color: #475569;
-        white-space: nowrap;
-    }
-
-    .item-count-badge .count-num {
-        font-weight: 700;
-        color: #0ea5e9;
-    }
-
-    .btn-export {
-        height: 40px;
-        padding: 0 18px;
-        border-radius: 999px;
-        font-size: 13.5px;
-        font-weight: 600;
-        font-family: 'Inter', sans-serif;
-        background: green;
-        border: none;
-        color: #fff;
-        transition: all 0.25s;
-        display: flex;
-        align-items: center;
-        gap: 7px;
-        white-space: nowrap;
-    }
-
-    .btn-export:hover {
-        color: #fff;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
-    }
 
     .btn-export:disabled {
         opacity: 0.7;
@@ -242,90 +102,7 @@
         flex-wrap: wrap;
     }
 
-    .customer-table-wrapper {
-        border-radius: 14px;
-        overflow: hidden;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.07);
-        border: 1px solid #e2e8f0;
-    }
 
-    .customer-table {
-        width: 100%;
-        border-collapse: collapse;
-        font-family: 'Inter', sans-serif;
-        font-size: 14px;
-    }
-
-    .customer-table thead tr {
-        background: linear-gradient(135deg, #1e293b, #334155);
-        color: #f1f5f9;
-    }
-
-    .customer-table thead th {
-        padding: 13px 18px;
-        font-weight: 600;
-        font-size: 13px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        border: 1px solid rgba(255,255,255,0.08);
-    }
-
-    .customer-table tbody tr {
-        transition: background 0.18s;
-        border-bottom: 1px solid #e2e8f0;
-    }
-
-    .customer-table tbody tr:last-child {
-        border-bottom: none;
-    }
-
-    .customer-table tbody tr:nth-child(even) {
-        background: #f8fafc;
-    }
-
-    .customer-table tbody tr:hover {
-        background: #eff6ff;
-    }
-
-    .customer-table tbody td {
-        padding: 12px 18px;
-        color: #334155;
-        border: 1px solid #e2e8f0;
-        vertical-align: middle;
-    }
-
-    .col-id {
-        width: 80px;
-        text-align: center;
-        font-weight: 600;
-        color: white;
-    }
-
-    .cust-avatar {
-        width: 34px;
-        height: 34px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #6366f1, #8b5cf6);
-        color: white;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        font-size: 13px;
-        flex-shrink: 0;
-        margin-right: 10px;
-    }
-
-    .cust-name {
-        font-weight: 600;
-        color: #1e293b;
-        font-size: 14px;
-    }
-
-    .cust-sub {
-        font-size: 12px;
-        color: #94a3b8;
-    }
 
     .flatpickr-calendar {
         width: 310px !important;
@@ -407,93 +184,130 @@
         outline: none;
         padding: 0;
     }
+
+    .btn:focus, .btn:active {
+        box-shadow: none !important;
+        outline: none !important;
+    }
 </style>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/light.css">
 
 <div class="dashboard-wrapper">
 
-    <div class="d-flex flex-wrap justify-content-end gap-3 card-containner">    
-
-        <div class="stat-card card position-relative p-3">
-            <div class="card-title">Tổng khách hàng</div>
-            <div class="card-value" id="cardTotalCustomer">--</div>
+    <div class="container-fluid mt-2 mb-2" style="padding: 0px !important">
+        <div class="row">
+            <div class="col-12 col-md-4 mb-3">
+                <div class="card h-100 shadow border-0 border-start border-5 border-primary rounded-3 pt-2" style="height: 150px;">
+                    <div class="card-body py-3 d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="text-uppercase fw-bold mb-2" style="letter-spacing: 0.5px;">Tổng khách hàng</h6>
+                            <h3 class="fw-bold text-dark mb-0" id="cardTotalCustomer">--</h3>
+                        </div>
+                        <div class="bg-primary bg-opacity-10 rounded-3 p-2 d-flex align-items-center justify-content-center">
+                            <img width="40" height="40" src="https://img.icons8.com/pastel-glyph/64/gender-neutral-user.png" alt="gender-neutral-user" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-4 mb-3">
+                <div class="card h-100 shadow border-0 border-start border-5 border-success rounded-3 pt-2" style="height: 150px;">
+                    <div class="card-body py-3 d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="text-uppercase fw-bold mb-2" style="letter-spacing: 0.5px;">Doanh số</h6>
+                            <h3 class="fw-bold text-dark mb-0" id="cardSale">--đ</h3>
+                        </div>
+                        <div class="bg-success bg-opacity-10 rounded-3 p-2 d-flex align-items-center justify-content-center">
+                            <img width="40" height="40" src="https://img.icons8.com/wired/64/sale-price-tag.png" alt="sale-price-tag" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-4 mb-3">
+                <div class="card h-100 shadow border-0 border-start border-5 border-info rounded-3 pt-2" style="height: 100px;">
+                    <div class="card-body py-3 d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="text-uppercase fw-bold mb-2" style="letter-spacing: 0.5px;">Doanh thu</h6>
+                            <h3 class="fw-bold text-dark mb-0" id="cardRevenue">--đ</h3>
+                        </div>
+                        <div class="bg-info bg-opacity-10 rounded-3 p-2 d-flex align-items-center justify-content-center">
+                            <img width="40" height="40" src="https://img.icons8.com/pastel-glyph/64/stocks-growth.png" alt="stocks-growth" />
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-
-        <div class="stat-card card position-relative p-3">
-            <div class="card-title">Doanh số</div>
-            <div class="card-value" id="cardSale">--đ</div>
-        </div>
-
-        <div class="stat-card card position-relative p-3">
-            <div class="card-title">Doanh thu</div>
-            <div class="card-value" id="cardRevenue">--đ</div>
-        </div>
-
     </div>
 
-    <div class="toolbar-row">
-       
+    <p class="text-secondary mt-3" style="font-size: 16px;">Bảng điều khiển khách hàng - Quản lý và theo dõi thông tin, doanh thu, dịch vụ của khách hàng.</p>
+
+    <div class="toolbar-row" style="padding: 0px !important; margin: 10px 0px 10px 0px !important">    
         <div class="d-flex align-items-center gap-2">
+            <select class="form-select shadow-sm border-1 border-secondary text-dark fw-medium w-auto" id="selectExample" style="height: 40px;">
+                <option value="0" selected>Hôm nay</option>
+                <option value="1">1 tháng</option>
+                <option value="3">3 tháng</option>
+                <option value="6">6 tháng</option>
+            </select>
             <div class="glass-date">
                 <input type="text" id="datePicker" placeholder="Chọn ngày..." readonly>
                 <span class="calendar-icon" onclick="fpInstance && fpInstance.open()">📅</span>
             </div>
-            <button id="btnClearDate" class="btn-clear-date" title="Hủy lọc ngày" onclick="ClearDate()">
-                &times;
-            </button>
         </div>
 
-        <button id="btnLichHen" class="btn btn-action btn-appt">
+        <button id="btnLichHen" class="btn btn-secondary text-secondary bg-white fw-semibold border-1 d-inline-flex align-items-center gap-2">
+            <img width="20" height="20" src="https://img.icons8.com/quill/100/calendar.png" alt="calendar" />
             Lịch hẹn
         </button>
-        <button id="btnDichVu" class="btn btn-action btn-service">
+        <button id="btnDichVu" class="btn btn-secondary text-secondary bg-white fw-semibold border-1 d-inline-flex align-items-center gap-2">
+            <img width="20" height="20" src="https://img.icons8.com/ios/50/clipboard.png" alt="clipboard" />
             Dịch vụ
         </button>
-        <button id="btnThanhToan" class="btn btn-action btn-payment">
+        <button id="btnThanhToan" class="btn btn-secondary text-secondary bg-white fw-semibold border-1 d-inline-flex align-items-center gap-2">
+            <img width="20" height="20" src="https://img.icons8.com/ios/50/bank-card-back-side--v1.png" alt="bank-card-back-side--v1" />
             Thanh toán
         </button>
 
         <div class="toolbar-right">
-            <div class="item-count-badge">
-                Số lượng: <span class="count-num" id="itemCount">12</span>
+            <div class="btn-group shadow-sm" role="group">
+                <div class="btn btn-white border-1 border-secondary bg-white text-dark fw-semibold" style="cursor: default; pointer-events: none;">
+                    SL: <span class="fw-bold text-primary" id="itemCount">0</span>
+                </div>
+                <button id="btnExportExcel" class="btn btn-secondary bg-white text-black border-1 fw-semibold d-inline-flex align-items-center gap-2">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                </button>
             </div>
-            <button id="btnExportExcel" class="btn-export">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 15V3m0 12l-4-4m4 4l4-4"/>
-                    <path d="M2 17v2a2 2 0 002 2h16a2 2 0 002-2v-2"/>
-                </svg>
-                Xuất Excel
-            </button>
         </div>
-
     </div>
 
-    <div class="customer-table-wrapper">
-        <table class="customer-table" id="customerTable">
-            <thead>
-                <tr>
-                    <th class="col-id">ID</th>
-                    <th>Khách hàng</th>
-                    <th>Liên hệ</th>
-                </tr>
-            </thead>
-            <tbody id="lstCustomer"></tbody>
-        </table>
+    <div class="position-relative">
+        <div class="table-responsive bg-white shadow-sm border rounded-3 mb-4" style="max-height: 450px; overflow-y: auto;">
+            <table class="table table-bordered table-hover align-middle mb-0" id="customerTable">
+                <thead class="table-light sticky-top" style="z-index: 1;">
+                    <tr>
+                        <th class="text-center" style="width: 50px;">#</th>
+                        <th class="text-uppercase" style="font-size: 13px;">Khách hàng</th>
+                        <th class="text-uppercase" style="font-size: 13px;">Liên hệ</th>
+                    </tr>
+                </thead>
+                <tbody id="lstCustomer"></tbody>
+            </table>
+        </div>
     </div>
 
-    <div id="waitingDiv" class="text-center my-3" style="display: none">
-        <div class="spinner-border text-primary" role="status"></div>
-    </div>
     <div class="text-center mt-3 mb-4">
-        <button id="btnLoadMore" class="btn btn-secondary px-5" style="display:none;" onclick="LoadList(0, 1)">
-            Xem thêm
+        <button id="btnLoadMore" class="btn btn-secondary position-relative" style="display:none; min-width: 160px;" onclick="LoadList(0, 1)">
+            <span id="waitingDiv" class="spinner-border spinner-border-sm text-light position-absolute top-50 start-0 translate-middle-y ms-3" role="status" style="display: none;"></span>
+            <span>Xem thêm</span>
         </button>
     </div>
 
 </div>
 
-<!-- flatpickr JS -->
 @Html.AntiForgeryToken()
 
 @section Scripts {
@@ -505,58 +319,61 @@
         let dataList      = [];
         let limit         = 5;
         let isDoneLoadMore = false;
-        let currentType   = 0;          // 0=All | 1=Date | 2=LịchHẹn | 3=DịchVụ | 4=ThanhToán
+        let currentType   = 1;          // 1=Date | 2=LịchHẹn | 3=DịchVụ | 4=ThanhToán
         let fpInstance    = null;       
 
         $(document).ready(function () {
-            fpInstance = flatpickr("#datePicker", {
-                mode: "range",
-                dateFormat: "d/m/Y",
-                animate: true,
-                locale: "vn",
-                onClose: function (selectedDates, dateStr, instance) {
-                    if (selectedDates.length === 2) {
-                        var fmt = function (d) {
-                            var dd   = String(d.getDate()).padStart(2, '0');
-                            var mm   = String(d.getMonth() + 1).padStart(2, '0');
-                            var yyyy = d.getFullYear();
-                            return dd + '/' + mm + '/' + yyyy;
-                        };
-                        document.getElementById('datePicker').value =
-                            fmt(selectedDates[0]) + ' - ' + fmt(selectedDates[1]);
-                        // Hiện nút X sau khi chọn đủ 2 ngày
-                        document.getElementById('btnClearDate').style.display = 'flex';
-                        LoadList(0, 0);
-                        LoadSummary();
-                    } else if (selectedDates.length === 1) {
-                        instance.open();
-                    }
+        fpInstance = flatpickr("#datePicker", {
+            mode: "range",
+            dateFormat: "d/m/Y",
+            animate: true,
+            locale: "vn",
+            onClose: function (selectedDates, dateStr, instance) {
+                if (selectedDates.length === 2) {
+                    var fmt = function (d) {
+                        var dd   = String(d.getDate()).padStart(2, '0');
+                        var mm   = String(d.getMonth() + 1).padStart(2, '0');
+                        var yyyy = d.getFullYear();
+                        return dd + '/' + mm + '/' + yyyy;
+                    };
+                    
+                    $('#datePicker').val(fmt(selectedDates[0]) + ' - ' + fmt(selectedDates[1]));
+                    
+                    LoadList(0, 0);
+                    LoadSummary();
+                } else if (selectedDates.length === 1) {
+                    instance.open();
                 }
-            });
-      
-            document.getElementById('btnLichHen').addEventListener('click', function () {
-                setActiveType(2);
-            });
-            document.getElementById('btnDichVu').addEventListener('click', function () {
-                setActiveType(3);
-            });
-            document.getElementById('btnThanhToan').addEventListener('click', function () {
-                setActiveType(4);
-            });
-            document.getElementById('btnExportExcel').addEventListener('click', function () {
-                ExportExcel();
-            });
-            LoadList(0, 0);
-            LoadSummary();
+            }
         });
+
+        $('#btnLichHen').click(function () { setActiveType(2); });
+        $('#btnDichVu').click(function () { setActiveType(3); });
+        $('#btnThanhToan').click(function () { setActiveType(4); });
+        $('#btnExportExcel').click(function () { ExportExcel(); });
+
+        $('#selectExample').change(function () {
+            applySelectDate();
+        });
+
+        applySelectDate();
+    });
 
 
         function getPickedDates() {
             if (!fpInstance) return { startDate: null, endDate: null };
             var dates = fpInstance.selectedDates;
+            if (dates.length >= 2) {
+                var end = new Date(dates[1]);
+                end.setHours(23, 59, 59, 997);
+                return {
+                    startDate: formatDateISO(dates[0]),
+                    endDate:   formatDateISO(end)
+                };
+            }
             return {
                 startDate: dates.length >= 1 ? formatDateISO(dates[0]) : null,
-                endDate:   dates.length >= 2 ? formatDateISO(dates[1]) : null
+                endDate:   null
             };
         }
 
@@ -564,20 +381,61 @@
             var dd   = String(d.getDate()).padStart(2, '0');
             var mm   = String(d.getMonth() + 1).padStart(2, '0');
             var yyyy = d.getFullYear();
-            return yyyy + '-' + mm + '-' + dd;
+            var hh   = String(d.getHours()).padStart(2, '0');
+            var mi   = String(d.getMinutes()).padStart(2, '0');
+            var ss   = String(d.getSeconds()).padStart(2, '0');
+            var ms   = String(d.getMilliseconds()).padStart(3, '0');
+            return yyyy + '-' + mm + '-' + dd + 'T' + hh + ':' + mi + ':' + ss + '.' + ms;
         }
 
         function ClearDate() {
             if (!fpInstance) return;
             fpInstance.clear();                                          
             document.getElementById('datePicker').value = '';           
-            document.getElementById('btnClearDate').style.display = 'none'; 
-            LoadList(0, 0);   
+            document.getElementById('selectExample').value = '0';
+            applySelectDate();
+        }
+
+        function applySelectDate() {
+            var val = parseInt(document.getElementById('selectExample').value);
+            var today = new Date();
+            var startDate, endDate;
+
+            if (val === 0) {
+                startDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+                endDate   = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
+            } else {
+                endDate   = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
+                startDate = new Date(today.getFullYear(), today.getMonth() - val, today.getDate());
+            }
+            if (fpInstance) {
+                fpInstance.setDate([startDate, endDate], false);
+            }
+
+            var fmt = function (d) {
+                var dd   = String(d.getDate()).padStart(2, '0');
+                var mm   = String(d.getMonth() + 1).padStart(2, '0');
+                var yyyy = d.getFullYear();
+                return dd + '/' + mm + '/' + yyyy;
+            };
+            document.getElementById('datePicker').value = fmt(startDate) + ' - ' + fmt(endDate);
+            LoadList(0, 0);
             LoadSummary();
         }
 
         function setActiveType(type) {
-            currentType = type;
+            $('#btnLichHen, #btnDichVu, #btnThanhToan').removeClass('btn-primary text-white border-2 fw-bold').addClass('btn-secondary text-secondary bg-white');
+
+            if (currentType === type) {
+                currentType = 1;
+            } else {
+                currentType = type;
+                let btnId = (type === 2) ? 'btnLichHen' : (type === 3) ? 'btnDichVu' : (type === 4) ? 'btnThanhToan' : null;
+                if (btnId) {
+                    $('#' + btnId).removeClass('btn-secondary text-secondary bg-white border-2 fw-bold').addClass('btn-primary text-primary bg-white border-2 fw-bold');
+                }
+            }
+
             LoadList(0, 0);
             LoadSummary();
         }
@@ -617,7 +475,6 @@
             var dates = getPickedDates();
 
             var type = currentType;
-            if (type == 0 && (dates.startDate || dates.endDate)) type = 1;
 
             AjaxLoad(
                 url    = "/CustomerDashBoard/CustomerDashBoard/?handler=LoadList",
@@ -754,25 +611,15 @@
         }
 
         function RenderItem(item, stt = '') {
-            var nameParts = (item.FullName || item.Name || '?').trim().split(' ');
-            var initials  = nameParts.length >= 2
-                ? (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase()
-                : nameParts[0].substring(0, 2).toUpperCase();
-
             let tr =
             `
                 <tr id="row_customer_${item.ID}" data-ID="${item.ID}">
-                    <td class="col-id stt-cell">${stt}</td>
-                    <td>
-                        <div class="d-flex align-items-center">
-                            <div class="cust-avatar">${initials}</div>
-                            <div>
-                                <div class="cust-name">${item.Name || ''}</div>
-                                <div class="cust-sub">${item.Note || ''}</div>
-                            </div>
-                        </div>
+                    <td class="text-center fw-semibold text-dark stt-cell align-middle">${stt}</td>
+                    <td class="align-middle">
+                        <div class="fw-bold text-dark" style="font-size: 14px;">${item.Name || ''}</div>
+                        <div class="text-secondary" style="font-size: 13px;">${item.Note || ''}</div>
                     </td>
-                    <td>${item.Phone1 || ''}</td>
+                    <td class="text-dark align-middle">${item.Phone1 || ''}</td>
                 </tr>
             `;
             return tr;
@@ -843,11 +690,10 @@
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = `
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M12 15V3m0 12l-4-4m4 4l4-4"/>
                         <path d="M2 17v2a2 2 0 002 2h16a2 2 0 002-2v-2"/>
                     </svg>
-                    Xuất Excel
                 `;
             }
         }
