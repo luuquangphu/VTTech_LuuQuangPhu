@@ -5,8 +5,33 @@
 }
 
 <style>
+    .card-containner {
+        margin: 10px 0px 24px 120px;
+        max-width: 80%;
+    }
+
+    @@media (max-width: 480px){
+        .card-containner {
+            margin: 10px 0px 24px 0px;
+            justify-content: start !important;
+        }
+
+        .toolbar-right {
+            margin-left: 0 !important;
+            width: 100%;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .toolbar-row {
+            justify-content: center;
+            padding: 0px !important;
+        }
+    } 
+
     .stat-card {
-        width: 220px;
+        width: fit-content;
+        min-width: 180px;
         min-height: 110px;
         border-radius: 14px;
         border: 1px solid #c4b5fd;
@@ -388,7 +413,7 @@
 
 <div class="dashboard-wrapper">
 
-    <div class="d-flex flex-row-reverse gap-3" style="margin: 10px 120px 24px 0px">
+    <div class="d-flex flex-wrap justify-content-end gap-3 card-containner">    
 
         <div class="stat-card card position-relative p-3">
             <div class="card-title">Tổng khách hàng</div>
@@ -397,12 +422,12 @@
 
         <div class="stat-card card position-relative p-3">
             <div class="card-title">Doanh số</div>
-            <div class="card-value" id="cardSale">--</div>
+            <div class="card-value" id="cardSale">--đ</div>
         </div>
 
         <div class="stat-card card position-relative p-3">
             <div class="card-title">Doanh thu</div>
-            <div class="card-value" id="cardRevenue">--</div>
+            <div class="card-value" id="cardRevenue">--đ</div>
         </div>
 
     </div>
@@ -694,8 +719,8 @@
                     }
 
                     if (res == "[]" || res == "0") {
-                        $("#cardSale").text("0");
-                        $("#cardRevenue").text("0");
+                        $("#cardSale").text("0 đ");        
+                        $("#cardRevenue").text("0 đ");
                         $("#cardTotalCustomer").text("0");
                         return;
                     }
@@ -704,8 +729,8 @@
                         var data = JSON.parse(res);
                         if (data && data.length > 0) {
                             var d = data[0];
-                            $("#cardSale").text(FormatNumber(d.Sale));
-                            $("#cardRevenue").text(FormatNumber(d.Revenue));
+                            $("#cardSale").text(FormatNumber(d.Sale) + "đ");
+                            $("#cardRevenue").text(FormatNumber(d.Revenue) + "đ"); 
                             $("#cardTotalCustomer").text(FormatNumber(d.TotalCustomer));
                         }
                     } catch (e) {
