@@ -4,53 +4,68 @@
     Layout = null;
 }
 
-<form id="frmCustomerDetail">
-    <div class="modal-header fw-bold text-center" style="font-size: 24px">
-        Thông tin khách hàng
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<form id="frmCustomerDetail" class="p-1">
+    <div class="modal-header border-0 pb-3 text-center d-flex flex-column align-items-center position-relative">
+        <h4 class="fw-bold text-primary mb-1" style="font-size: 24px;">Thông tin khách hàng</h4>
+        <p class="text-secondary mb-0" style="font-size: 14px;">Quản lý hồ sơ và hình ảnh đại diện</p>
+        <button type="button" class="btn-close position-absolute top-0 end-0 mt-2 me-2 shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
     </div>
 
-    <div class="modal-body mx-2">
-        <div class="d-flex align-items-center mb-3">
-            <label class="form-label mb-0 fw-bold" style="width: 80px;">Cust_Code: </label>
-            <div class="d-flex flex-column w-100">
-                <input id="inpCustCode" class="form-control" type="text" />
+    <div class="modal-body pt-0 mx-2">
+        <div class="d-flex align-items-center mb-3 rounded-2">
+            <div class="d-flex flex-column align-items-center justify-content-center p-2" style="flex: 3;">
+                <div class="position-relative mb-2">
+                    <img id="imgAvatar" src="https://cdnvttimg.vttechsolution.com/ImageDemoCustomer/_AvatarCustomer/11(20221205112213).png" 
+                         style="width: 120px; height: 120px; object-fit: cover;" 
+                         class="rounded-circle border border-2 border-secondary shadow-sm m-2" alt="Avatar" />
+                </div>
+                <span>Ảnh đại diện</span>
+            </div>
+
+            <div style="flex: 7;">
+                <div class="mb-3">
+                    <label class="form-label fw-bold text-dark mb-1" style="font-size: 14px;">Cust_Code: </label>
+                    <input id="inpCustCode" name="CustCode" class="form-control shadow-sm" type="text" placeholder="Nhập mã khách hàng..." />
+                </div>
+                <div class="mb-1">
+                    <label class="form-label fw-bold text-dark mb-1" style="font-size: 14px;">Name: </label>
+                    <input id="inpName" name="Name" class="form-control shadow-sm" type="text" placeholder="Nhập tên khách hàng..." />
+                </div>
             </div>
         </div>
-        <div class="d-flex align-items-center mb-3">
-            <label class="form-label mb-0 fw-bold" style="width: 80px;">Name: </label>
-            <input id="inpName" class="form-control" type="text" />
-        </div>
-        <div class="d-flex align-items-center mb-3">
-            <label class="form-label mb-0 fw-bold" style="width: 80px;">SDT: </label>
-            <input id="inpPhone1" class="form-control" type="text" />
-        </div>
-        <div class="d-flex align-items-center mb-3">
-            <label class="form-label mb-0 fw-bold" style="width: 80px;">Note: </label>
-            <input id="inpNote" class="form-control" type="text" />
-        </div>
-    </div>
 
-    <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-        <button type="button" class="btn btn-success px-4" onclick="ExcuteCustomer()">Lưu</button>
+        <div class="mb-3 mt-2">
+            <label class="form-label fw-bold text-dark mb-1" style="font-size: 14px;">SDT: </label>
+            <input id="inpPhone1" name="Phone1" class="form-control shadow-sm" type="text" placeholder="Nhập số điện thoại..." />
+        </div>
+        <div class="mb-3">
+            <label class="form-label fw-bold text-dark mb-1" style="font-size: 14px;">Note: </label>
+            <input id="inpNote" name="Note" class="form-control shadow-sm" type="text" placeholder="Nhập ghi chú..." />
+        </div>
+
+        <div id="errMsg" class="text-danger mb-3 fw-bold"></div>
+    </div>
+    
+
+    <div class="modal-footer border-0 pt-0 justify-content-center gap-2">
+        <button type="button" class="btn btn-secondary px-4 fw-semibold shadow-sm" data-bs-dismiss="modal">Đóng</button>
+        <button type="button" id="btnSaveCustomer" class="btn btn-success px-4" onclick="CD_ExecuteCustomerTS('errMsg')">Lưu</button>
     </div>
 </form>
 
 <script>
 
-    var CustomerId = '@Model._CurrentID';
-
+    var CD_CustomerId = '@Model._CurrentID';
 
     $(document).ready(function () {
         LoadDataUpdateCustomer();
     });
 
     function LoadDataUpdateCustomer() {
-        if (CustomerId != "0") {
+        if (CD_CustomerId != "0") {
             request(
                 "/Customer/CustomerDetail?handler=LoadDetail",
-                { "ID": CustomerId },
+                { "ID": CD_CustomerId },
                 true, null,
                 function (res) {
                     if (res != "[]" && res != "0") {
@@ -61,47 +76,17 @@
                         $("#inpName").val(item.Name);
                         $("#inpPhone1").val(item.Phone1);
                         $("#inpNote").val(item.Note);
+
+                        let avatarPath = item.Avatar;
+                        if (avatarPath && avatarPath.trim() !== "") {
+                            $("#imgAvatar").attr("src", avatarPath);
+                        } else {
+                            $("#imgAvatar").attr("src", "https://cdnvttimg.vttechsolution.com/ImageDemoCustomer/_AvatarCustomer/11(20221205112213).png");
+                        }
                     }
                 }
             );
         }
     }
-
-    function ExcuteCustomer() {
-        let CustCode = $("#inpCustCode").val().trim();
-        let Name = $("#inpName").val().trim();
-        let Phone1 = $("#inpPhone1").val().trim();
-        let Note = $("#inpNote").val().trim();
-
-        request(
-            "/Customer/CustomerDetail/?handler=ExcuteData",
-            {
-                "CustomerID": CustomerId,
-                "CustCode": CustCode,
-                "Name": Name,
-                "Phone1": Phone1,
-                "Note": Note
-            },
-            true, null,
-            function (response) {
-                if (response !== "0") {
-                    let data = JSON.parse(response);
-
-                    $('#mainModal').one('hidden.bs.modal', function () {
-                        LoadLstCustomer(data[0].ID, 0);
-
-                        if (CustomerId == "0") {
-                            alert("Tạo khách hàng thành công!");
-                        } else {
-                            alert("Cập nhật khách hàng thành công!");
-                        }
-                    });
-
-                    $('#mainModal').modal('hide');
-                } else {
-                    alert("Mã khách hàng có thể đã tồn tại hoặc có lỗi hệ thống!");
-                }
-            }
-        );
-    };
 </script>
+<script type="module" src="~/js/customer/CustomerDetailController.js"></script>

@@ -65,7 +65,7 @@
         });
 
         function request(url, data, async, error, success, before, complete) {
-            $.ajax({
+            let ajaxConfig = {
                 type: "POST",
                 url: url,
                 data: data,
@@ -85,7 +85,14 @@
                 complete: function () {
                     if (complete) complete();
                 }
-            });
+            };
+
+            if (data instanceof FormData) {
+                ajaxConfig.processData = false;
+                ajaxConfig.contentType = false;
+            }
+
+            $.ajax(ajaxConfig);
         };
 
         function LoadLstCustomer(currentId = 0, isLoadMore = 0) {
