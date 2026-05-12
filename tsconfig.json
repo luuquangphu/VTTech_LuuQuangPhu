@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": false,
+    "noEmitOnError": true,
+    "removeComments": false,
+    "sourceMap": true,
+    "target": "ES2015",
+    "module": "ES2015",
+    "outDir": "./wwwroot/js/",
+    "rootDir": "./ts",
+    "moduleResolution": "Bundler",
+    "esModuleInterop": true,
+    "allowJs": true,
+    "lib": [ "DOM", "ES2015" ],
+    "skipLibCheck": true
+  },
+  "exclude": [
+    "node_modules",
+    "wwwroot"
+  ]
+}
