@@ -1,4 +1,4 @@
-﻿using CRUDCustomer.Models;
+using CRUDCustomer.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Collections.Generic;
@@ -36,6 +36,7 @@ namespace CRUDCustomer.Pages.CustomerDashBoard
         /// <param name="EndDate">Date End</param>
         /// <returns>
         ///     -100: Invalid Date (EndDate < StartDate)
+        ///     -102: StartDate or EndDate null
         ///     []: no data
         ///     [data]: Response of the query
         ///     0: Error query
@@ -54,7 +55,7 @@ namespace CRUDCustomer.Pages.CustomerDashBoard
                 if (StartDate == DateTime.MinValue) StartDate = null;
                 if (EndDate == DateTime.MinValue) EndDate = null;
 
-                Console.Write("===LOAD LIST" + StartDate + EndDate);
+                Console.WriteLine("===LOAD LIST" + StartDate + EndDate);
 
                 DataTable dt = await executeDataBase.ExecuteDataTable
                (
@@ -68,9 +69,9 @@ namespace CRUDCustomer.Pages.CustomerDashBoard
 
                 if (dt != null && dt.Rows.Count > 0)
                 {
-                    if (dt.Columns.Contains("RESULT") && dt.Rows[0]["RESULT"].ToString() == "-100")
+                    if (dt.Columns.Contains("RESULT"))
                     {
-                        return Content("-100");
+                        return Content(dt.Rows[0]["RESULT"].ToString());
                     }
 
                     return Content(DataJson.Datatable(dt));
@@ -94,6 +95,7 @@ namespace CRUDCustomer.Pages.CustomerDashBoard
         ///     [data]: Response of query
         ///     0: Error query
         ///     -100: Invalid Date (EndDate < StartDate)
+        ///     -102: StartDate or EndDate null
         /// </returns>
         public async Task<IActionResult> OnPostLoadSummary
         (
@@ -112,9 +114,9 @@ namespace CRUDCustomer.Pages.CustomerDashBoard
 
                 if (dt != null && dt.Rows.Count > 0)
                 {
-                    if (dt.Columns.Contains("RESULT") && dt.Rows[0]["RESULT"].ToString() == "-100")
+                    if (dt.Columns.Contains("RESULT"))
                     {
-                        return Content("-100");
+                        return Content(dt.Rows[0]["RESULT"].ToString());
                     }
 
                     return Content(DataJson.Datatable(dt));
@@ -128,5 +130,43 @@ namespace CRUDCustomer.Pages.CustomerDashBoard
             }
         }
 
+        public async Task<IActionResult> OnPostExportAllList
+        (
+            int Type = 1
+            , DateTime? StartDate = null
+            , DateTime? EndDate = null
+        )
+        {
+            try
+            {
+                if (StartDate == DateTime.MinValue) StartDate = null;
+                if (EndDate == DateTime.MinValue) EndDate = null;
+
+                DataTable dt = await executeDataBase.ExecuteDataTable
+               (
+                   "[dbo].[YYY_sp_VTT_CustomerDashBoard_ExportAllList]",
+                   "@Type", SqlDbType.Int, Type
+                   , "@StartDate", SqlDbType.DateTime, StartDate.HasValue ? (object)StartDate.Value : DBNull.Value
+                   , "@EndDate", SqlDbType.DateTime, EndDate.HasValue ? (object)EndDate.Value : DBNull.Value
+               );
+
+                if (dt != null && dt.Rows.Count > 0)
+                {
+                    if (dt.Columns.Contains("RESULT"))
+                    {
+                        return Content(dt.Rows[0]["RESULT"].ToString());
+                    }
+
+                    return Content(DataJson.Datatable(dt));
+                }
+
+                return Content("[]");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("ExportAll Error: " + ex.Message);
+                return Content("0");
+            }
+        }
     }
 }

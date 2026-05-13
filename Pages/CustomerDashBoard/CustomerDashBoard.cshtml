@@ -5,6 +5,16 @@
 }
 
 <style>
+    .btn-type {
+        width: 155px;
+        height: 35px;
+        justify-content: center
+    }
+    
+    .btn-excel:hover {
+        background-color: #28A745 !important;
+    }
+
     @@media (max-width: 480px){
         .card-containner {
             margin: 10px 0px 24px 0px;
@@ -220,6 +230,7 @@
                         <div>
                             <h6 class="text-uppercase fw-bold mb-2">Doanh số</h6>
                             <h3 class="fw-bold text-dark mb-0" id="cardSale">--đ</h3>
+                            <div class="text-secondary mt-1" style="font-size: 13px;" id="cardSaleFull"></div>
                         </div>
                         <div class="bg-success bg-opacity-10 rounded-3 p-2 d-flex align-items-center justify-content-center">
                             <img width="40" height="40" src="https://img.icons8.com/wired/64/sale-price-tag.png" alt="sale-price-tag" />
@@ -233,6 +244,7 @@
                         <div>
                             <h6 class="text-uppercase fw-bold mb-2">Doanh thu</h6>
                             <h3 class="fw-bold text-dark mb-0" id="cardRevenue">--đ</h3>
+                            <div class="text-secondary mt-1" style="font-size: 13px;" id="cardRevenueFull"></div>
                         </div>
                         <div class="bg-info bg-opacity-10 rounded-3 p-2 d-flex align-items-center justify-content-center">
                             <img width="40" height="40" src="https://img.icons8.com/pastel-glyph/64/stocks-growth.png" alt="stocks-growth" />
@@ -259,16 +271,36 @@
             </div>
         </div>
 
-        <button id="btnLichHen" class="btn btn-secondary text-secondary bg-white fw-semibold border-1 d-inline-flex align-items-center gap-2">
-            <img width="20" height="20" src="https://img.icons8.com/quill/100/calendar.png" alt="calendar" />
+        <button id="btnKhachHang" class="btn btn-type btn-secondary text-secondary bg-white fw-semibold border-1 d-inline-flex align-items-center gap-2">
+            <svg width="20px" height="20px" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM6 8a6 6 0 1 1 12 0A6 6 0 0 1 6 
+                    8zm2 10a3 3 0 0 0-3 3 1 1 0 1 1-2 0 5 5 0 0 1 5-5h8a5 5 0 0 1 5 5 1 1 0 1 1-2 0 3 3 0 0 0-3-3H8z" fill="currentColor" />
+            </svg>
+            Khách hàng
+        </button>
+        <button id="btnLichHen" class="btn btn-type btn-secondary text-secondary bg-white fw-semibold border-1 d-inline-flex align-items-center gap-2">
+            <svg width="20px" height="20px" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M14.5 2H13V1h-1v1H4V1H3v1H1.5l-.5.5v12l.5.5h13l.5-.5v-12l-.5-.5zM14 
+                    14H2V5h12v9zm0-10H2V3h12v1zM4 8H3v1h1V8zm-1 2h1v1H3v-1zm1 2H3v1h1v-1zm2-4h1v1H6V8zm1 2H6v1h1v-1zm-1 2h1v1H6v-1zm1-6H6v1h1V6zm2 
+                    2h1v1H9V8zm1 2H9v1h1v-1zm-1 2h1v1H9v-1zm1-6H9v1h1V6zm2 2h1v1h-1V8zm1 2h-1v1h1v-1zm-1-4h1v1h-1V6z" />
+            </svg>
             Lịch hẹn
         </button>
-        <button id="btnDichVu" class="btn btn-secondary text-secondary bg-white fw-semibold border-1 d-inline-flex align-items-center gap-2">
-            <img width="20" height="20" src="https://img.icons8.com/ios/50/clipboard.png" alt="clipboard" />
+        <button id="btnDichVu" class="btn btn-type btn-secondary text-secondary bg-white fw-semibold border-1 d-inline-flex align-items-center gap-2">
+            <svg width="20px" height="20px" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M3.75 4.48h-.71L2 3.43l.71-.7.69.68L4.81 2l.71.71-1.77 1.77zM6.99 
+                    3h8v1h-8V3zm0 3h8v1h-8V6zm8 3h-8v1h8V9zm-8 3h8v1h-8v-1zM3.04 7.48h.71l1.77-1.77-.71-.7L3.4 6.42l-.69-.69-.71.71 1.04 1.04zm.71 
+                    3.01h-.71L2 9.45l.71-.71.69.69 1.41-1.42.71.71-1.77 1.77zm-.71 3.01h.71l1.77-1.77-.71-.71-1.41 1.42-.69-.69-.71.7 1.04 1.05z" />
+            </svg>
             Dịch vụ
         </button>
-        <button id="btnThanhToan" class="btn btn-secondary text-secondary bg-white fw-semibold border-1 d-inline-flex align-items-center gap-2">
-            <img width="20" height="20" src="https://img.icons8.com/ios/50/bank-card-back-side--v1.png" alt="bank-card-back-side--v1" />
+        <button id="btnThanhToan" class="btn btn-type btn-secondary text-secondary bg-white fw-semibold border-1 d-inline-flex align-items-center gap-2">
+            <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                 width="20px" height="20px" viewBox="0 0 92 92" enable-background="new 0 0 92 92" xml:space="preserve" fill="currentColor">
+                <path id="XMLID_2192_" d="M92,23.4c0-4.1-3.3-7.4-7.4-7.4H7.4C3.3,16,0,19.3,0,23.4v45.3C0,72.7,3.3,76,7.4,76h77.3
+	                c4.1,0,7.4-3.3,7.4-7.4V23.4z M84,24v7H8v-7H84z M8,68V43h76v25H8z M76.5,55c0,2.2-1.8,4-4,4h-19c-2.2,0-4-1.8-4-4s1.8-4,4-4h19
+	                C74.7,51,76.5,52.8,76.5,55z" />
+            </svg>
             Thanh toán
         </button>
 
@@ -277,12 +309,20 @@
                 <div class="btn btn-white border-1 border-secondary bg-white text-dark fw-semibold" style="cursor: default; pointer-events: none;">
                     SL: <span class="fw-bold text-primary" id="itemCount">0</span>
                 </div>
-                <button id="btnExportExcel" class="btn btn-secondary bg-white text-black border-1 fw-semibold d-inline-flex align-items-center gap-2">
+                <button id="btnExportExcel" class="btn btn-excel btn-secondary bg-white text-black border-1 fw-semibold d-inline-flex align-items-center gap-2">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                         <polyline points="7 10 12 15 17 10"></polyline>
                         <line x1="12" y1="15" x2="12" y2="3"></line>
                     </svg>
+                </button>
+                <button id="btnExportExcelAll" class="btn btn-excel btn-secondary bg-white text-black border-1 fw-semibold d-inline-flex align-items-center gap-2">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    All
                 </button>
             </div>
         </div>
@@ -351,14 +391,22 @@
             }
         });
 
+        $('#btnKhachHang').click(function () { setActiveType(1); });
         $('#btnLichHen').click(function () { setActiveType(2); });
         $('#btnDichVu').click(function () { setActiveType(3); });
         $('#btnThanhToan').click(function () { setActiveType(4); });
         $('#btnExportExcel').click(function () { ExportExcel(); });
+        $('#btnExportExcel').click(function () { ExportExcel(false); });
+        $('#btnExportExcelAll').click(function () { ExportExcel(true); });
 
         $('#selectExample').change(function () {
             applySelectDate();
         });
+
+        let initBtnId = (currentType === 1) ? 'btnKhachHang' : (currentType === 2) ? 'btnLichHen' : (currentType === 3) ? 'btnDichVu' : (currentType === 4) ? 'btnThanhToan' : null;
+        if (initBtnId) {
+            $('#' + initBtnId).removeClass('btn-secondary text-secondary bg-white').addClass('btn-primary text-primary bg-white border-2 fw-bold');
+        }
 
         applySelectDate();
     });
@@ -428,16 +476,17 @@
         }
 
         function setActiveType(type) {
-            $('#btnLichHen, #btnDichVu, #btnThanhToan').removeClass('btn-primary text-white border-2 fw-bold').addClass('btn-secondary text-secondary bg-white');
+            $('#btnKhachHang, #btnLichHen, #btnDichVu, #btnThanhToan').removeClass('btn-primary text-primary border-2 fw-bold').addClass('btn-secondary text-secondary bg-white');
 
             if (currentType === type) {
                 currentType = 1;
             } else {
                 currentType = type;
-                let btnId = (type === 2) ? 'btnLichHen' : (type === 3) ? 'btnDichVu' : (type === 4) ? 'btnThanhToan' : null;
-                if (btnId) {
-                    $('#' + btnId).removeClass('btn-secondary text-secondary bg-white border-2 fw-bold').addClass('btn-primary text-primary bg-white border-2 fw-bold');
-                }
+            }
+
+            let btnId = (currentType === 1) ? 'btnKhachHang' : (currentType === 2) ? 'btnLichHen' : (currentType === 3) ? 'btnDichVu' : (currentType === 4) ? 'btnThanhToan' : null;
+            if (btnId) {
+                $('#' + btnId).removeClass('btn-secondary text-secondary bg-white').addClass('btn-primary text-primary bg-white border-2 fw-bold');
             }
 
             LoadList(0, 0);
@@ -576,6 +625,8 @@
                         $("#cardSale").text("--");
                         $("#cardRevenue").text("--");
                         $("#cardTotalCustomer").text("--");
+                        $("#cardSaleFull").text("");
+                        $("#cardRevenueFull").text("");
                         return;
                     }
 
@@ -583,6 +634,8 @@
                         $("#cardSale").text("0 đ");        
                         $("#cardRevenue").text("0 đ");
                         $("#cardTotalCustomer").text("0");
+                        $("#cardSaleFull").text("");
+                        $("#cardRevenueFull").text("");
                         return;
                     }
 
@@ -590,8 +643,10 @@
                         var data = JSON.parse(res);
                         if (data && data.length > 0) {
                             var d = data[0];
-                            $("#cardSale").text(FormatNumber(d.Sale) + "đ");
-                            $("#cardRevenue").text(FormatNumber(d.Revenue) + "đ"); 
+                            $("#cardSale").text(FormatCurrencyShort(d.Sale));
+                            $("#cardSaleFull").text(FormatNumber(d.Sale) + " đ");
+                            $("#cardRevenue").text(FormatCurrencyShort(d.Revenue)); 
+                            $("#cardRevenueFull").text(FormatNumber(d.Revenue) + " đ");
                             $("#cardTotalCustomer").text(FormatNumber(d.TotalCustomer));
                         }
                     } catch (e) {
@@ -602,6 +657,8 @@
                     $("#cardSale").text("...");
                     $("#cardRevenue").text("...");
                     $("#cardTotalCustomer").text("...");
+                    $("#cardSaleFull").text("");
+                    $("#cardRevenueFull").text("");
                 },
                 complete = null
             );
@@ -612,6 +669,32 @@
             var num = parseFloat(value);
             if (isNaN(num)) return '0';
             return num.toLocaleString('vi-VN');
+        }
+
+        function FormatCurrencyShort(value) {
+            if (value == null || value === '') return '0 đ';
+            var num = parseFloat(value);
+            if (isNaN(num)) return '0 đ';
+            
+            if (num >= 1000000000) {
+                let ty = num / 1000000000;
+                let tyStr = ty.toFixed(2);
+                let parts = tyStr.split('.');
+                let decimalPart = parts[1];
+                if (decimalPart === '00') return parts[0] + 'Tỷ';
+                if (decimalPart.endsWith('0')) decimalPart = decimalPart[0];
+                return parts[0] + 'Tỷ' + decimalPart;
+            } else if (num >= 1000000) {
+                let tr = num / 1000000;
+                let trStr = tr.toFixed(2);
+                let parts = trStr.split('.');
+                let decimalPart = parts[1];
+                if (decimalPart === '00') return parts[0] + 'Tr';
+                if (decimalPart.endsWith('0')) decimalPart = decimalPart[0];
+                return parts[0] + 'Tr' + decimalPart;
+            } else {
+                return num.toLocaleString('vi-VN') + ' đ';
+            }
         }
 
         function RenderItem(item, stt = '') {
@@ -644,13 +727,11 @@
             });
         }
 
-        function ExportExcel() {
-            if (!dataList || dataList.length === 0) {
-                alert('Không có dữ liệu để xuất file excel');
-                return;
-            }
+        function ExportExcel(isLoadAll) {
+            let btnId = isLoadAll ? 'btnExportExcelAll' : 'btnExportExcel';
+            let btn = document.getElementById(btnId);
+            let originalContent = btn.innerHTML; 
 
-            var btn = document.getElementById('btnExportExcel');
             btn.disabled = true;
             btn.innerHTML = `
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="spin-icon">
@@ -659,48 +740,108 @@
                 Đang xuất...
             `;
 
-            try {
-                var rows = dataList.map(function (item, index) {
-                    return {
-                        'STT':           index + 1,
-                        'Họ tên':        item.Name   || '',
-                        'Số điện thoại': item.Phone1 || '',
-                        'Ghi chú':       item.Note   || ''
-                    };
-                });
+            let processExcel = function (dataToExport) {
+                setTimeout(function () {
+                    try {
+                        if (!dataToExport || dataToExport.length === 0) {
+                            alert('Không có dữ liệu để xuất file excel');
+                            return;
+                        }
 
-                var ws = XLSX.utils.json_to_sheet(rows);
+                        // Map tên của trường trong dữ liệu thành tên cột trong file excel
+                        const headerDictionary = {
+                            'Name': 'Họ tên',
+                            'Phone1': 'Số điện thoại',
+                            'Note': 'Ghi chú'
+                        };
 
-                ws['!cols'] = [
-                    { wch: 6  }, 
-                    { wch: 28 },
-                    { wch: 18 },  
-                    { wch: 35 } 
-                ];
+                        var rows = dataToExport.map(function (item, index) {
+                            let rowData = { 'STT': index + 1 };
 
-                var wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws, 'Danh sách khách hàng');
+                            for (let key in item) {
+                                if (key === 'ID') continue;
 
-                var now    = new Date();
-                var pad    = function (n) { return String(n).padStart(2, '0'); };
-                var stamp  = now.getFullYear() + pad(now.getMonth() + 1) + pad(now.getDate())
-                           + '_' + pad(now.getHours()) + pad(now.getMinutes()) + pad(now.getSeconds());
-                var fileName = 'DanhSachKhachHang_' + stamp + '.xlsx';
+                                let headerName = headerDictionary[key] || key;
+                                let value = (item[key] !== null && item[key] !== undefined) ? item[key] : '';
 
-                XLSX.writeFile(wb, fileName);
-            } catch (e) {
-                console.error('ExportExcel error:', e);
-                alert('Xuất file thất bại, vui lòng thử lại!');
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = `
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 15V3m0 12l-4-4m4 4l4-4"/>
-                        <path d="M2 17v2a2 2 0 002 2h16a2 2 0 002-2v-2"/>
-                    </svg>
-                `;
+                                if (key.toLowerCase().includes('phone') && value !== '') {
+                                    value = String(value);
+                                }
+
+                                rowData[headerName] = value;
+                            }
+                            return rowData;
+                        });
+
+                        var ws = XLSX.utils.json_to_sheet(rows);
+
+                        let colWidths = [];
+                        let headers = Object.keys(rows[0]);
+
+                        headers.forEach(key => {
+                            let maxLen = key.length;
+                            rows.forEach(row => {
+                                let cellValue = row[key] ? row[key].toString() : '';
+                                if (cellValue.length > maxLen) {
+                                    maxLen = cellValue.length;
+                                }
+                            });
+                            colWidths.push({ wch: maxLen + 2 });
+                        });
+
+                        ws['!cols'] = colWidths;
+
+                        var wb = XLSX.utils.book_new();
+                        XLSX.utils.book_append_sheet(wb, ws, 'Danh sách khách hàng');
+
+                        var now = new Date();
+                        var pad = function (n) { return String(n).padStart(2, '0'); };
+                        var stamp = now.getFullYear() + pad(now.getMonth() + 1) + pad(now.getDate())
+                            + '_' + pad(now.getHours()) + pad(now.getMinutes()) + pad(now.getSeconds());
+                        var fileName = 'DanhSachKhachHang_' + stamp + '.xlsx';
+
+                        XLSX.writeFile(wb, fileName);
+
+                    } catch (e) {
+                        console.error('ExportExcel error:', e);
+                        alert('Xuất file thất bại, vui lòng thử lại!');
+                    } finally {
+                        btn.disabled = false;
+                        btn.innerHTML = originalContent;
+                    }
+                }, 100);
+            };
+
+            if (isLoadAll) {
+                var dates = getPickedDates();
+                AjaxLoad(
+                    "/CustomerDashBoard/CustomerDashBoard/?handler=ExportAllList",
+                    {
+                        "Type": currentType,
+                        "StartDate": dates.startDate,
+                        "EndDate": dates.endDate
+                    },
+                    true,
+                    function (err) { 
+                        alert("Lỗi kết nối khi tải dữ liệu xuất Excel!");
+                        btn.disabled = false;
+                        btn.innerHTML = originalContent;
+                    },
+                    function (res) { 
+                        if (res == "-100" || res == "-102" || res == "0") {
+                            alert("Có lỗi xảy ra khi lấy dữ liệu xuất Excel!");
+                            btn.disabled = false;
+                            btn.innerHTML = originalContent;
+                            return;
+                        }
+
+                        let fullData = JSON.parse(res);
+                        processExcel(fullData); 
+                    }
+                );
+            } else {
+                processExcel(dataList);
             }
         }
-
     </script>
 }

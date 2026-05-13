@@ -30,12 +30,18 @@ export function CD_ExecuteCustomerTS(errMsgDivId: string) {
             true, null,
             function (response: any) {
                 if (response !== "0") {
-                    let data = JSON.parse(response);
-                    $('#mainModal').one('hidden.bs.modal', function () {
-                        LoadLstCustomer(data[0].ID, 0);
-                        alert(customerIdNum === 0 ? "Tạo thành công!" : "Cập nhật thành công!");
-                    });
-                    $('#mainModal').modal('hide');
+                    if (response !== "0") {
+                        let data = JSON.parse(response);
+                        let newID = data[0].ID;
+
+                        $('#mainModal').modal('hide');
+
+                        LoadLstCustomer(newID, 0);
+
+                        setTimeout(() => {
+                            alert(customerIdNum === 0 ? "Tạo thành công!" : "Cập nhật thành công!");
+                        }, 1000);
+                    }
                 } else {
                     alert("Lỗi: Mã khách hàng có thể đã tồn tại!");
                 }

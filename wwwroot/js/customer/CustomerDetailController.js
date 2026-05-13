@@ -17,12 +17,15 @@ export function CD_ExecuteCustomerTS(errMsgDivId) {
         ValidationHelper.phoneRegex(phone1, "Số điện thoại khách hàng");
         request("/Customer/CustomerDetail/?handler=ExcuteData", formData, true, null, function (response) {
             if (response !== "0") {
-                let data = JSON.parse(response);
-                $('#mainModal').one('hidden.bs.modal', function () {
-                    LoadLstCustomer(data[0].ID, 0);
-                    alert(customerIdNum === 0 ? "Tạo thành công!" : "Cập nhật thành công!");
-                });
-                $('#mainModal').modal('hide');
+                if (response !== "0") {
+                    let data = JSON.parse(response);
+                    let newID = data[0].ID;
+                    $('#mainModal').modal('hide');
+                    LoadLstCustomer(newID, 0);
+                    setTimeout(() => {
+                        alert(customerIdNum === 0 ? "Tạo thành công!" : "Cập nhật thành công!");
+                    }, 1000);
+                }
             }
             else {
                 alert("Lỗi: Mã khách hàng có thể đã tồn tại!");
