@@ -363,7 +363,7 @@
         let dataList      = [];
         let limit         = 5;
         let isDoneLoadMore = false;
-        let currentType   = 1;          // 1=Date | 2=LịchHẹn | 3=DịchVụ | 4=ThanhToán
+        let currentType   = 1;          // 1=Customer | 2=LịchHẹn | 3=DịchVụ | 4=ThanhToán
         let fpInstance    = null;       
 
         $(document).ready(function () {
@@ -384,7 +384,6 @@
                     $('#datePicker').val(fmt(selectedDates[0]) + ' - ' + fmt(selectedDates[1]));
                     
                     LoadList(0, 0);
-                    LoadSummary();
                 } else if (selectedDates.length === 1) {
                     instance.open();
                 }
@@ -472,7 +471,6 @@
             };
             document.getElementById('datePicker').value = fmt(startDate) + ' - ' + fmt(endDate);
             LoadList(0, 0);
-            LoadSummary();
         }
 
         function setActiveType(type) {
@@ -490,7 +488,6 @@
             }
 
             LoadList(0, 0);
-            LoadSummary();
         }
 
         function AjaxLoad(url, data, async, error, success, before, complete) {
@@ -519,53 +516,85 @@
 
         function LoadList(currentID = 0, isLoadMore = 0) {
             if (currentID == 0 && isLoadMore == 0) {
-                dataList      = [];
-                beginID       = 0;
+                dataList = [];
+                beginID = 0;
                 isDoneLoadMore = false;
                 $("#lstCustomer").empty();
+
+                $("#cardSale").text("...");
+                $("#cardRevenue").text("...");
+                $("#cardTotalCustomer").text("...");
+                $("#cardSaleFull").text("");
+                $("#cardRevenueFull").text("");
             }
 
             var dates = getPickedDates();
-
             var type = currentType;
 
             AjaxLoad(
-                url    = "/CustomerDashBoard/CustomerDashBoard/?handler=LoadList",
-                data   = {
-                    "BeginID":   beginID,
-                    "Limit":     limit,
-                    "Type":      type,
+                url = "/CustomerDashBoard/CustomerDashBoard/?handler=LoadDashboardData",
+                data = {
+                    "BeginID": beginID,
+                    "Limit": limit,
+                    "Type": type,
                     "StartDate": dates.startDate,
-                    "EndDate":   dates.endDate
+                    "EndDate": dates.endDate
                 },
-                async  = true,
-                error  = null,
+                async = true,
+                error = null,
                 success = function (res) {
-                    if (res == "-100") {
-                        alert("Ngày kết thúc không được nhỏ hơn ngày bắt đầu!");
+                    if (res == "-100" || res == "-102") {
+                        alert(res == "-100" ? "Ngày kết thúc không được nhỏ hơn ngày bắt đầu!" : "Vui lòng chọn ngày hợp lệ!");
+                        if (beginID == 0) {
+                            $("#cardSale, #cardRevenue, #cardTotalCustomer").text("--");
+                            $("#cardSaleFull, #cardRevenueFull").text("");
+                        }
+                        return;
+                    }
+
+                    if (res == "0") {
+                        alert("Lỗi hệ thống khi tải dữ liệu!");
                         return;
                     }
 
                     if (res != "[]") {
-                        let data = JSON.parse(res);
+                        let responseData = JSON.parse(res);
 
-                        if (currentID == 0) {
-                            dataList = dataList.concat(data);
-                            beginID  = data[data.length - 1].ID;
-
-                            RenderData(data, "lstCustomer", dataList.length - data.length);
-                            ReIndexSTT();
-
-                            $("#itemCount").text(dataList.length);
-
-                            if (data.length < limit) {
-                                $("#btnLoadMore").hide();
-                                isDoneLoadMore = true;
+                        if (beginID == 0) {
+                            let sumData = responseData.summary;
+                            if (sumData && sumData.length > 0) {
+                                var d = sumData[0];
+                                $("#cardSale").text(FormatCurrencyShort(d.Sale));
+                                $("#cardSaleFull").text(FormatNumber(d.Sale) + " đ");
+                                $("#cardRevenue").text(FormatCurrencyShort(d.Revenue));
+                                $("#cardRevenueFull").text(FormatNumber(d.Revenue) + " đ");
+                                $("#cardTotalCustomer").text(FormatNumber(d.TotalCustomer));
                             } else {
-                                $("#btnLoadMore").show();
+                                $("#cardSale, #cardRevenue").text("0 đ");
+                                $("#cardTotalCustomer").text("0");
+                                $("#cardSaleFull, #cardRevenueFull").text("");
                             }
-                        } else {
-                            if (data && data.length > 0) {
+                        }
+
+                        let data = responseData.list;
+
+                        if (data && data.length > 0) {
+                            if (currentID == 0) {
+                                dataList = dataList.concat(data);
+                                beginID = data[data.length - 1].ID;
+
+                                RenderData(data, "lstCustomer", dataList.length - data.length);
+                                ReIndexSTT();
+
+                                $("#itemCount").text(dataList.length);
+
+                                if (data.length < limit) {
+                                    $("#btnLoadMore").hide();
+                                    isDoneLoadMore = true;
+                                } else {
+                                    $("#btnLoadMore").show();
+                                }
+                            } else {
                                 if ($('#row_customer_' + currentID).length > 0) {
                                     let index = dataList.findIndex(x => x.ID == data[0].ID);
                                     if (index != -1) dataList[index] = data[0];
@@ -575,19 +604,13 @@
                                     $('#lstCustomer').prepend(RenderItem(data[0]));
                                 }
                                 ReIndexSTT();
+                                $("#itemCount").text(dataList.length);
                             }
-
-                            $("#itemCount").text(dataList.length);
-                        }
-
-                    }
-
-                    if (res == "[]") {
-                        if (isLoadMore == 1) {
-                            isDoneLoadMore = true;
-                            $("#btnLoadMore").hide();
                         } else {
-                            if (currentID != 0) {
+                            if (isLoadMore == 1) {
+                                isDoneLoadMore = true;
+                                $("#btnLoadMore").hide();
+                            } else if (currentID != 0) {
                                 if ($('#row_customer_' + currentID).length > 0) {
                                     dataList = dataList.filter(x => x.ID != currentID);
                                     $('#row_customer_' + currentID).remove();
@@ -608,61 +631,6 @@
                 }
             );
         };
-
-        function LoadSummary() {
-            var dates = getPickedDates();
-
-            AjaxLoad(
-                url    = "/CustomerDashBoard/CustomerDashBoard/?handler=LoadSummary",
-                data   = {
-                    "StartDate": dates.startDate,
-                    "EndDate":   dates.endDate
-                },
-                async  = true,
-                error  = null,
-                success = function (res) {
-                    if (res == "-100") {
-                        $("#cardSale").text("--");
-                        $("#cardRevenue").text("--");
-                        $("#cardTotalCustomer").text("--");
-                        $("#cardSaleFull").text("");
-                        $("#cardRevenueFull").text("");
-                        return;
-                    }
-
-                    if (res == "[]" || res == "0") {
-                        $("#cardSale").text("0 đ");        
-                        $("#cardRevenue").text("0 đ");
-                        $("#cardTotalCustomer").text("0");
-                        $("#cardSaleFull").text("");
-                        $("#cardRevenueFull").text("");
-                        return;
-                    }
-
-                    try {
-                        var data = JSON.parse(res);
-                        if (data && data.length > 0) {
-                            var d = data[0];
-                            $("#cardSale").text(FormatCurrencyShort(d.Sale));
-                            $("#cardSaleFull").text(FormatNumber(d.Sale) + " đ");
-                            $("#cardRevenue").text(FormatCurrencyShort(d.Revenue)); 
-                            $("#cardRevenueFull").text(FormatNumber(d.Revenue) + " đ");
-                            $("#cardTotalCustomer").text(FormatNumber(d.TotalCustomer));
-                        }
-                    } catch (e) {
-                        console.error("LoadSummary parse error:", e);
-                    }
-                },
-                before = function () {
-                    $("#cardSale").text("...");
-                    $("#cardRevenue").text("...");
-                    $("#cardTotalCustomer").text("...");
-                    $("#cardSaleFull").text("");
-                    $("#cardRevenueFull").text("");
-                },
-                complete = null
-            );
-        }
 
         function FormatNumber(value) {
             if (value == null || value === '') return '0';
@@ -727,89 +695,87 @@
             });
         }
 
+        function ProcessExcelData(data, onCompleteCallback) {
+            setTimeout(function () {
+                try {
+                    if (!data || data.length === 0) {
+                        alert('Không có dữ liệu để xuất file excel');
+                        return;
+                    }
+
+                    const headerDictionary = {
+                        'Name': 'Họ tên',
+                        'Phone1': 'Số điện thoại',
+                        'Note': 'Ghi chú'
+                    };
+
+                    var rows = data.map(function (item, index) {
+                        let rowData = { 'STT': index + 1 };
+                        for (let key in item) {
+                            if (key === 'ID') continue;
+                            let headerName = headerDictionary[key] || key;
+                            let value = (item[key] !== null && item[key] !== undefined) ? item[key] : '';
+                            if (key.toLowerCase().includes('phone') && value !== '') {
+                                value = String(value);
+                            }
+                            rowData[headerName] = value;
+                        }
+                        return rowData;
+                    });
+
+                    var ws = XLSX.utils.json_to_sheet(rows);
+
+                    let colWidths = [];
+                    let headers = Object.keys(rows[0]);
+                    headers.forEach(key => {
+                        let maxLen = key.length;
+                        rows.forEach(row => {
+                            let cellValue = row[key] ? row[key].toString() : '';
+                            if (cellValue.length > maxLen) {
+                                maxLen = cellValue.length;
+                            }
+                        });
+                        colWidths.push({ wch: maxLen + 2 });
+                    });
+
+                    ws['!cols'] = colWidths;
+
+                    var wb = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(wb, ws, 'Danh sách khách hàng');
+
+                    var now = new Date();
+                    var pad = function (n) { return String(n).padStart(2, '0'); };
+                    var stamp = now.getFullYear() + pad(now.getMonth() + 1) + pad(now.getDate())
+                        + '_' + pad(now.getHours()) + pad(now.getMinutes()) + pad(now.getSeconds());
+                    var fileName = 'DanhSachKhachHang_' + stamp + '.xlsx';
+
+                    XLSX.writeFile(wb, fileName);
+
+                } catch (e) {
+                    console.error('ExportExcel error:', e);
+                    alert('Xuất file thất bại, vui lòng thử lại!');
+                } finally {
+                    // Gọi callback để khôi phục UI
+                    if (typeof onCompleteCallback === "function") {
+                        onCompleteCallback();
+                    }
+                }
+            }, 100);
+        };
+
         function ExportExcel(isLoadAll) {
             let btnId = isLoadAll ? 'btnExportExcelAll' : 'btnExportExcel';
             let btn = document.getElementById(btnId);
-            let originalContent = btn.innerHTML; 
+            let originalContent = btn.innerHTML;
 
+            // Đổi UI sang Loading
             btn.disabled = true;
-            btn.innerHTML = `
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="spin-icon">
-                    <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
-                </svg>
-                Đang xuất...
-            `;
+            btn.innerHTML = `<svg width="16" height="16" ... class="spin-icon">...</svg> Đang xuất...`;
 
-            let processExcel = function (dataToExport) {
-                setTimeout(function () {
-                    try {
-                        if (!dataToExport || dataToExport.length === 0) {
-                            alert('Không có dữ liệu để xuất file excel');
-                            return;
-                        }
-
-                        // Map tên của trường trong dữ liệu thành tên cột trong file excel
-                        const headerDictionary = {
-                            'Name': 'Họ tên',
-                            'Phone1': 'Số điện thoại',
-                            'Note': 'Ghi chú'
-                        };
-
-                        var rows = dataToExport.map(function (item, index) {
-                            let rowData = { 'STT': index + 1 };
-
-                            for (let key in item) {
-                                if (key === 'ID') continue;
-
-                                let headerName = headerDictionary[key] || key;
-                                let value = (item[key] !== null && item[key] !== undefined) ? item[key] : '';
-
-                                if (key.toLowerCase().includes('phone') && value !== '') {
-                                    value = String(value);
-                                }
-
-                                rowData[headerName] = value;
-                            }
-                            return rowData;
-                        });
-
-                        var ws = XLSX.utils.json_to_sheet(rows);
-
-                        let colWidths = [];
-                        let headers = Object.keys(rows[0]);
-
-                        headers.forEach(key => {
-                            let maxLen = key.length;
-                            rows.forEach(row => {
-                                let cellValue = row[key] ? row[key].toString() : '';
-                                if (cellValue.length > maxLen) {
-                                    maxLen = cellValue.length;
-                                }
-                            });
-                            colWidths.push({ wch: maxLen + 2 });
-                        });
-
-                        ws['!cols'] = colWidths;
-
-                        var wb = XLSX.utils.book_new();
-                        XLSX.utils.book_append_sheet(wb, ws, 'Danh sách khách hàng');
-
-                        var now = new Date();
-                        var pad = function (n) { return String(n).padStart(2, '0'); };
-                        var stamp = now.getFullYear() + pad(now.getMonth() + 1) + pad(now.getDate())
-                            + '_' + pad(now.getHours()) + pad(now.getMinutes()) + pad(now.getSeconds());
-                        var fileName = 'DanhSachKhachHang_' + stamp + '.xlsx';
-
-                        XLSX.writeFile(wb, fileName);
-
-                    } catch (e) {
-                        console.error('ExportExcel error:', e);
-                        alert('Xuất file thất bại, vui lòng thử lại!');
-                    } finally {
-                        btn.disabled = false;
-                        btn.innerHTML = originalContent;
-                    }
-                }, 100);
+            // Khai báo sẵn hành động khôi phục UI
+            let restoreUI = function () {
+                btn.disabled = false;
+                btn.innerHTML = originalContent;
             };
 
             if (isLoadAll) {
@@ -822,26 +788,26 @@
                         "EndDate": dates.endDate
                     },
                     true,
-                    function (err) { 
+                    function (err) {
                         alert("Lỗi kết nối khi tải dữ liệu xuất Excel!");
-                        btn.disabled = false;
-                        btn.innerHTML = originalContent;
+                        restoreUI(); // Lỗi mạng cũng phải phục hồi UI
                     },
-                    function (res) { 
+                    function (res) {
                         if (res == "-100" || res == "-102" || res == "0") {
                             alert("Có lỗi xảy ra khi lấy dữ liệu xuất Excel!");
-                            btn.disabled = false;
-                            btn.innerHTML = originalContent;
+                            restoreUI();
                             return;
                         }
 
                         let fullData = JSON.parse(res);
-                        processExcel(fullData); 
+                        // Đẩy dữ liệu vào hàm xử lý, truyền kèm cái callback khôi phục UI
+                        ProcessExcelData(fullData, restoreUI);
                     }
                 );
             } else {
-                processExcel(dataList);
+                // Trực tiếp xuất với callback
+                ProcessExcelData(dataList, restoreUI);
             }
-        }
+        };
     </script>
 }

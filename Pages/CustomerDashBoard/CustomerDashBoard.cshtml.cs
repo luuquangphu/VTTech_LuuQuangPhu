@@ -41,13 +41,16 @@ namespace CRUDCustomer.Pages.CustomerDashBoard
         ///     [data]: Response of the query
         ///     0: Error query
         /// </returns>
-        public async Task<IActionResult> OnPostLoadList
+        /// <summary>
+        /// Load dữ liệu Dashboard (Gộp List + Summary thông minh)
+        /// </summary>
+        public async Task<IActionResult> OnPostLoadDashboardData
         (
-                int Type = 0
-                , int Limit = 10
-                , int BeginID = 0
-                , DateTime? StartDate = null
-                , DateTime? EndDate = null
+            int Type = 0
+            , int Limit = 10
+            , int BeginID = 0
+            , DateTime? StartDate = null
+            , DateTime? EndDate = null
         )
         {
             try
@@ -55,74 +58,40 @@ namespace CRUDCustomer.Pages.CustomerDashBoard
                 if (StartDate == DateTime.MinValue) StartDate = null;
                 if (EndDate == DateTime.MinValue) EndDate = null;
 
-                Console.WriteLine("===LOAD LIST" + StartDate + EndDate);
+                Task<DataTable> taskList = executeDataBase.ExecuteDataTable(
+                    "[dbo].[YYY_sp_VTT_CustomerDashBoard_LoadList]",
+                    "@Type", SqlDbType.Int, Type,
+                    "@Limit", SqlDbType.Int, Limit,
+                    "@BeginID", SqlDbType.Int, BeginID,
+                    "@StartDate", SqlDbType.DateTime, StartDate.HasValue ? (object)StartDate.Value : DBNull.Value,
+                    "@EndDate", SqlDbType.DateTime, EndDate.HasValue ? (object)EndDate.Value : DBNull.Value
+                );
 
-                DataTable dt = await executeDataBase.ExecuteDataTable
-               (
-                   "[dbo].[YYY_sp_VTT_CustomerDashBoard_LoadList]",
-                   "@Type", SqlDbType.Int, Type
-                   , "@Limit", SqlDbType.Int, Limit
-                   , "@BeginID", SqlDbType.Int, BeginID
-                   , "@StartDate", SqlDbType.DateTime, StartDate.HasValue ? (object)StartDate.Value : DBNull.Value
-                   , "@EndDate", SqlDbType.DateTime, EndDate.HasValue ? (object)EndDate.Value : DBNull.Value
-               );
+                Task<DataTable> taskSummary = null;
 
-                if (dt != null && dt.Rows.Count > 0)
+                if (BeginID == 0)
                 {
-                    if (dt.Columns.Contains("RESULT"))
-                    {
-                        return Content(dt.Rows[0]["RESULT"].ToString());
-                    }
-
-                    return Content(DataJson.Datatable(dt));
+                    taskSummary = executeDataBase.ExecuteDataTable(
+                        "[dbo].[YYY_sp_VTT_CustomerDashBoard_LoadSummary]",
+                        "@StartDate", SqlDbType.DateTime, StartDate.HasValue ? (object)StartDate.Value : DBNull.Value,
+                        "@EndDate", SqlDbType.DateTime, EndDate.HasValue ? (object)EndDate.Value : DBNull.Value
+                    );
                 }
 
-                return Content("[]");
-            }
-            catch (Exception ex)
-            {
-                return Content("0");
-            }
-        }
+                DataTable dtList = await taskList;
+                DataTable dtSummary = taskSummary != null ? await taskSummary : null;
 
-        /// <summary>
-        /// Load Summary Sale(Doanh số), Revenue(Doanh thu), TotalCustomer(Tổng khách hàng)
-        /// </summary>
-        /// <param name="StartDate">Date start</param>
-        /// <param name="EndDate">Date End</param>
-        /// <returns>
-        ///     []: No data
-        ///     [data]: Response of query
-        ///     0: Error query
-        ///     -100: Invalid Date (EndDate < StartDate)
-        ///     -102: StartDate or EndDate null
-        /// </returns>
-        public async Task<IActionResult> OnPostLoadSummary
-        (
-            DateTime? StartDate = null
-            , DateTime? EndDate = null
-        )
-        {
-            try
-            {
-                DataTable dt = await executeDataBase.ExecuteDataTable
-               (
-                   "[dbo].[YYY_sp_VTT_CustomerDashBoard_LoadSummary]",
-                   "@StartDate", SqlDbType.DateTime, StartDate.HasValue ? (object)StartDate.Value : DBNull.Value
-                   , "@EndDate", SqlDbType.DateTime, EndDate.HasValue ? (object)EndDate.Value : DBNull.Value
-               );
+                if (dtList != null && dtList.Columns.Contains("RESULT"))
+                    return Content(dtList.Rows[0]["RESULT"].ToString());
 
-                if (dt != null && dt.Rows.Count > 0)
-                {
-                    if (dt.Columns.Contains("RESULT"))
-                    {
-                        return Content(dt.Rows[0]["RESULT"].ToString());
-                    }
+                if (dtSummary != null && dtSummary.Columns.Contains("RESULT"))
+                    return Content(dtSummary.Rows[0]["RESULT"].ToString());
 
-                    return Content(DataJson.Datatable(dt));
-                }
+                string jsonList = (dtList != null && dtList.Rows.Count > 0) ? DataJson.Datatable(dtList) : "[]";
+                string jsonSummary = (dtSummary != null && dtSummary.Rows.Count > 0) ? DataJson.Datatable(dtSummary) : "[]";
 
-                return Content("[]");
+                string finalJson = $"{{\"list\": {jsonList}, \"summary\": {jsonSummary}}}";
+                return Content(finalJson);
             }
             catch (Exception ex)
             {

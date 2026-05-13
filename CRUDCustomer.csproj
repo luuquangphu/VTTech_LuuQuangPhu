@@ -26,4 +26,8 @@
     <TypeScriptCompile Include="ts\helper\ValidationHelper.ts" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\image\icons\" />
+  </ItemGroup>
+
 </Project>
