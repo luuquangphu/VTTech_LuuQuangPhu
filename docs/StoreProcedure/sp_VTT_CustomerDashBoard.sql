@@ -11,7 +11,6 @@ GO
 --ERROR CODE:	
 -- + -100: EndDate < StartDate
 -- + -102: EndDate or StartDate NULL
-
 CREATE OR ALTER PROCEDURE [dbo].[YYY_sp_VTT_CustomerDashBoard_LoadList]
     @StartDate DATETIME = NULL,
     @EndDate DATETIME = NULL,
@@ -164,7 +163,8 @@ GO
 EXEC [dbo].[YYY_sp_VTT_CustomerDashBoard_LoadList] 
 	@StartDate = '2025-07-01T00:00:00', 
 	@EndDate = '2025-07-31T23:59:59', 
-	@Type = 2, 
-	@BeginID = 95650
+	@Type = 1, 
+	@BeginID = 0,
+	@Limit = 50000
 GO
 
