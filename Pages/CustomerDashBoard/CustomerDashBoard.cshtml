@@ -6,7 +6,7 @@
 
 <style>
     .btn-type {
-        width: 150px;
+        width: 145px;
         height: 37px;
         justify-content: center
     }
@@ -36,7 +36,7 @@
 
     .glass-date {
         position: relative;
-        width: 270px;
+        width: 240px;
         height: 40px;
         display: flex;
         align-items: center;
@@ -395,10 +395,12 @@
         $('#btnDichVu').click(function () { setActiveType(3); });
         $('#btnThanhToan').click(function () { setActiveType(4); });
         $('#btnExportExcel').click(async function () {
-            await ExportExcel(dataList);
-        }); 
+            await ExportExcel(dataList, false, this);
+        });
 
-        $('#btnExportExcelAll').click(function () { handleExportAll(); });
+        $('#btnExportExcelAll').click(async function () {
+            await ExportExcel(null, true, this);
+        });
 
         $('#selectExample').change(function () {
             applySelectDate();
@@ -515,6 +517,24 @@
                 }
             });
         };
+
+        async function fetchDashboardData(beginID, limit, type, dates) {
+            return new Promise((resolve, reject) => {
+                AjaxLoad(
+                    "/CustomerDashBoard/CustomerDashBoard/?handler=LoadDashboardData",
+                    { 
+                        "BeginID": beginID
+                        , "Limit": limit
+                        , "Type": type
+                        , "StartDate": dates.startDate
+                        , "EndDate": dates.endDate 
+                    },
+                    true,
+                    reject,
+                    resolve
+                );
+            });
+        }
 
         function LoadList(currentID = 0, isLoadMore = 0) {
             if (currentID == 0 && isLoadMore == 0) {
@@ -697,53 +717,51 @@
             });
         }
 
-        async function handleExportAll() {
-            let btn = document.getElementById('btnExportExcelAll');
-            let originalContent = btn.innerHTML;
+        async function ExportExcel(data = null, isLoadAll = false, btnElement = null) {
+            let exportData = data;
+            let originalHtml = '';
 
-            try {
-                btn.disabled = true;
-                btn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Đang tải data...`;
-
-                const dates = getPickedDates();
-                const res = await new Promise((resolve, reject) => {
-                    AjaxLoad(
-                        "/CustomerDashBoard/CustomerDashBoard/?handler=LoadDashboardData",
-                        { 
-                            "Type": currentType
-                            , "StartDate": dates.startDate
-                            , "EndDate": dates.endDate
-                            , "BeginID": 0
-                            , "Limit": 50000 
-                        }
-                        , true
-                        , reject
-                        , resolve
-                    );
-                });
-
-                if (res == "-100" || res == "-102" || res == "0") throw new Error("Lấy data thất bại!");
-
-                let fullData = JSON.parse(res);
-
-                btn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Đang xuất file...`;
-
-                await ExportExcel(fullData.list);
-
-            } catch (error) {
-                console.error(error);
-                alert("Lỗi: " + error.message);
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = originalContent;
+            if (btnElement) {
+                originalHtml = $(btnElement).html();
+                $(btnElement).prop('disabled', true);
+                $(btnElement).html(`<span class="spinner-border spinner-border-sm"></span> ${isLoadAll ? 'Đang tải...' : 'Đang xuất...'}`);
             }
-        }
 
-        async function ExportExcel(data) {
             try {
-                if (!data || !Array.isArray(data) || data.length === 0) {
+                if (isLoadAll) {
+                    const dates = getPickedDates();
+
+                    const res = await new Promise((resolve, reject) => {
+                        AjaxLoad(
+                            "/CustomerDashBoard/CustomerDashBoard/?handler=LoadDashboardData",
+                            {
+                                "BeginID": 0,
+                                "Limit": 50000,
+                                "Type": currentType,
+                                "StartDate": dates.startDate,
+                                "EndDate": dates.endDate
+                            },
+                            true,     
+                            reject,   
+                            resolve
+                        );
+                    });
+
+                    if (res == "-100" || res == "-102" || res == "0") {
+                        throw new Error("Lỗi máy chủ hoặc ngày tháng không hợp lệ!");
+                    }
+
+                    let fullData = JSON.parse(res);
+                    exportData = fullData.list;
+                }
+
+                if (!exportData || !Array.isArray(exportData) || exportData.length === 0) {
                     alert('Không có dữ liệu để xuất file excel');
                     return false;
+                }
+
+                if (btnElement && isLoadAll) {
+                    $(btnElement).html(`<span class="spinner-border spinner-border-sm"></span> Đang xuất...`);
                 }
 
                 const headerDictionary = {
@@ -752,7 +770,7 @@
                     'Note': 'Ghi chú'
                 };
 
-                const rows = data.map((item, index) => {
+                const rows = exportData.map((item, index) => {
                     let rowData = { 'STT': index + 1 };
                     for (let key in item) {
                         if (key === 'ID') continue;
@@ -783,8 +801,13 @@
                 return true;
             } catch (error) {
                 console.error('ExportExcel Error:', error);
-                alert('Có lỗi xảy ra trong quá trình tạo file Excel!');
+                alert("Lỗi: " + (error.message || 'Có lỗi xảy ra trong quá trình xuất Excel!'));
                 return false;
+            } finally {
+                if (btnElement) {
+                    $(btnElement).prop('disabled', false);
+                    $(btnElement).html(originalHtml);
+                }
             }
         }
     </script>

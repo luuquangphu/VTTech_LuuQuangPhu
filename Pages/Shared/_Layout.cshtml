@@ -57,6 +57,12 @@
             background-color: #fff;
         }
 
+        .navbar-toggler:focus,
+        .navbar-toggler:active {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
         .nav-link.has-child .icon-close {
             display: none;
         }
@@ -104,8 +110,8 @@
     <header class="fixed-top shadow-sm">
         <nav class="navbar navbar-light bg-white border-bottom">
             <div class="px-4 d-flex align-items-center">
-                <button class="navbar-toggler me-3 border border-1 border-dark" type="button" onclick="toggleSidebar()">
-                    <span class="navbar-toggler-icon"></span>
+                <button class="navbar-toggler me-3 border border-1 border-secondary type="button" onclick="toggleSidebar()">
+                    <span class="navbar-toggler-icon" style= "width: 25px; height: 25px"></span>
                 </button>
                 <a class="navbar-brand mb-0" asp-area="" asp-page="/Index">CRUDCustomer</a>
             </div>
