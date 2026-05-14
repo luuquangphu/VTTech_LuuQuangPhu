@@ -98,44 +98,5 @@ namespace CRUDCustomer.Pages.CustomerDashBoard
                 return Content("0");
             }
         }
-
-        public async Task<IActionResult> OnPostExportAllList
-        (
-            int Type = 1
-            , DateTime? StartDate = null
-            , DateTime? EndDate = null
-        )
-        {
-            try
-            {
-                if (StartDate == DateTime.MinValue) StartDate = null;
-                if (EndDate == DateTime.MinValue) EndDate = null;
-
-                DataTable dt = await executeDataBase.ExecuteDataTable
-               (
-                   "[dbo].[YYY_sp_VTT_CustomerDashBoard_ExportAllList]",
-                   "@Type", SqlDbType.Int, Type
-                   , "@StartDate", SqlDbType.DateTime, StartDate.HasValue ? (object)StartDate.Value : DBNull.Value
-                   , "@EndDate", SqlDbType.DateTime, EndDate.HasValue ? (object)EndDate.Value : DBNull.Value
-               );
-
-                if (dt != null && dt.Rows.Count > 0)
-                {
-                    if (dt.Columns.Contains("RESULT"))
-                    {
-                        return Content(dt.Rows[0]["RESULT"].ToString());
-                    }
-
-                    return Content(DataJson.Datatable(dt));
-                }
-
-                return Content("[]");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("ExportAll Error: " + ex.Message);
-                return Content("0");
-            }
-        }
     }
 }
